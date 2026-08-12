@@ -20,7 +20,34 @@ class SetupController extends Controller
 
         $activeLicense = LicenseService::getActiveLicense();
 
+        if (!$activeLicense) {
+            $detectedJson = $this->autoDetectLicenseFile();
+            if ($detectedJson) {
+                $actRes = LicenseService::activateLicense($detectedJson);
+                if ($actRes['success']) {
+                    $activeLicense = $actRes['license'];
+                }
+            }
+        }
+
         return view('setup.index', compact('activeLicense'));
+    }
+
+    protected function autoDetectLicenseFile(): ?string
+    {
+        $rootLicense = base_path('pharmcare_license.json');
+        if (file_exists($rootLicense)) {
+            return file_get_contents($rootLicense);
+        }
+
+        foreach (range('D', 'Z') as $drive) {
+            $usbLicense = "{$drive}:\\pharmcare_license.json";
+            if (file_exists($usbLicense)) {
+                return file_get_contents($usbLicense);
+            }
+        }
+
+        return null;
     }
 
     public function store(Request $request, SetupService $setup)
