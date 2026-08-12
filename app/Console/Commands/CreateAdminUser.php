@@ -31,18 +31,24 @@ class CreateAdminUser extends Command
         $password = $this->argument('password');
         $name = trim($this->argument('name'));
 
-        $user = User::updateOrCreate(
-            ['email' => $email],
-            [
-                'name' => $name,
-                'password' => Hash::make($password),
-                'role' => 'admin',
-                'phone' => '',
-                'is_active' => true,
-            ]
-        );
+        // Check if any admin account exists
+        $existingAdmin = User::where('role', 'admin')->first();
 
-        $this->info("Admin user [{$email}] successfully set!");
+        if ($existingAdmin) {
+            $this->info("Admin user [{$existingAdmin->email}] already exists. Preserving existing password.");
+            return 0;
+        }
+
+        User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => Hash::make($password),
+            'role' => 'admin',
+            'phone' => '',
+            'is_active' => true,
+        ]);
+
+        $this->info("Default Admin user [{$email}] successfully created!");
         return 0;
     }
 }

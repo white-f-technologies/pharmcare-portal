@@ -11,8 +11,15 @@ mkdir -p /var/www/html/storage/framework/sessions
 mkdir -p /var/www/html/storage/framework/views
 mkdir -p /var/www/html/storage/logs
 mkdir -p /var/www/html/storage/keys
+mkdir -p /var/www/html/storage/app_data
 mkdir -p /var/www/html/bootstrap/cache
 mkdir -p /var/www/html/database
+
+# Check persistent storage DB location
+if [ -d "/var/www/html/storage/app_data" ]; then
+    touch /var/www/html/storage/app_data/database.sqlite
+    export DB_DATABASE=/var/www/html/storage/app_data/database.sqlite
+fi
 touch /var/www/html/database/database.sqlite
 
 # Full permissions so both CLI and Apache can write
@@ -37,12 +44,16 @@ php artisan migrate --force
 # Create storage link
 php artisan storage:link 2>/dev/null || true
 
-# Sync Admin account if env variables are specified
-if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
-    php artisan pharmcare:admin "$ADMIN_EMAIL" "$ADMIN_PASSWORD" || true
-    mkdir -p /var/www/html/storage/app_data/PharmCare
-    touch /var/www/html/storage/app_data/PharmCare/.setup_complete
-fi
+# Ensure Admin account exists and mark setup as complete for Vendor Portal
+ADMIN_EMAIL_VAL="${ADMIN_EMAIL:-admin@pharmcare.local}"
+ADMIN_PASS_VAL="${ADMIN_PASSWORD:-admin123}"
+
+php artisan pharmcare:admin "$ADMIN_EMAIL_VAL" "$ADMIN_PASS_VAL" || true
+
+mkdir -p /var/www/html/storage/app_data/PharmCare
+mkdir -p /var/www/html/storage/app_data
+touch /var/www/html/storage/app_data/PharmCare/.setup_complete
+touch /var/www/html/storage/app_data/.setup_complete
 
 # Clear any stale caches first
 php artisan config:clear || true
