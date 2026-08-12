@@ -35,15 +35,31 @@ class SetupController extends Controller
 
     protected function autoDetectLicenseFile(): ?string
     {
-        $rootLicense = base_path('pharmcare_license.json');
-        if (file_exists($rootLicense)) {
-            return file_get_contents($rootLicense);
+        $candidatePaths = [
+            base_path('pharmcare_license.json'),
+            base_path('license.json'),
+        ];
+
+        $globRoot = glob(base_path('pharmcare_license*.json'));
+        if ($globRoot) {
+            $candidatePaths = array_merge($candidatePaths, $globRoot);
         }
 
         foreach (range('D', 'Z') as $drive) {
-            $usbLicense = "{$drive}:\\pharmcare_license.json";
-            if (file_exists($usbLicense)) {
-                return file_get_contents($usbLicense);
+            $candidatePaths[] = "{$drive}:\\pharmcare_license.json";
+            $candidatePaths[] = "{$drive}:\\license.json";
+            $usbGlob = glob("{$drive}:\\pharmcare_license*.json");
+            if ($usbGlob) {
+                $candidatePaths = array_merge($candidatePaths, $usbGlob);
+            }
+        }
+
+        foreach (array_unique($candidatePaths) as $path) {
+            if (file_exists($path) && is_file($path)) {
+                $content = @file_get_contents($path);
+                if ($content && json_decode($content, true)) {
+                    return $content;
+                }
             }
         }
 
