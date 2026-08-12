@@ -10,8 +10,8 @@
                     <p class="text-xs text-gray-500">{{ __('Vendor cryptographic RSA-SHA256 signature generator for software licensing') }}</p>
                 </div>
             </div>
-            <a href="{{ route('settings.license') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition border border-slate-300">
-                &larr; {{ __('Back to License & Edition') }}
+            <a href="{{ route('vendor.clients') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition border border-slate-300">
+                &larr; {{ __('Back to Clients List') }}
             </a>
         </div>
     </x-slot>
@@ -66,20 +66,20 @@
                         <p class="text-xs text-gray-500 mt-1">{{ __('Fill in client details to issue a digitally signed, tamper-proof license file.') }}</p>
                     </div>
 
-                    <form action="{{ route('settings.license.generate') }}" method="POST" class="space-y-5">
+                    <form action="{{ route('vendor.license.generate') }}" method="POST" class="space-y-5">
                         @csrf
                         <input type="hidden" name="action" :value="action">
 
                         <!-- Business Name -->
                         <div>
                             <x-input-label for="business_name" :value="__('Pharmacy / Client Name')" class="font-bold text-xs uppercase text-gray-700" />
-                            <x-text-input id="business_name" name="business_name" type="text" class="mt-1 block w-full text-sm font-semibold rounded-xl" placeholder="e.g. City Care Pharmacy Ltd" value="{{ old('business_name', 'PharmCare Drug Shop') }}" required />
+                            <x-text-input id="business_name" name="business_name" type="text" class="mt-1 block w-full text-sm font-semibold rounded-xl" placeholder="e.g. City Care Pharmacy Ltd" value="{{ old('business_name', $prefilledClient?->name ?? 'PharmCare Drug Shop') }}" required />
                         </div>
 
                         <!-- Business ID / Client Reference -->
                         <div>
                             <x-input-label for="business_id" :value="__('Client Reference / Business ID')" class="font-bold text-xs uppercase text-gray-700" />
-                            <x-text-input id="business_id" name="business_id" type="text" class="mt-1 block w-full text-sm font-mono rounded-xl" placeholder="e.g. CC-UG-2026" value="{{ old('business_id', 'PHARM-UG-' . date('Y')) }}" />
+                            <x-text-input id="business_id" name="business_id" type="text" class="mt-1 block w-full text-sm font-mono rounded-xl" placeholder="e.g. CC-UG-2026" value="{{ old('business_id', $prefilledClient?->client_id ?? ('PHARM-UG-' . date('Y'))) }}" />
                         </div>
 
                         <!-- Edition Selector -->
@@ -183,7 +183,7 @@
                             </div>
                             <div class="flex items-center justify-between text-xs text-slate-400">
                                 <span>Status: <strong class="text-emerald-400">Digitally Signed (SHA-256)</strong></span>
-                                <a href="{{ route('settings.license') }}" class="text-amber-400 hover:underline font-bold">Paste in License Settings &rarr;</a>
+                                <a href="{{ route('vendor.clients') }}" class="text-amber-400 hover:underline font-bold">Back to Client Management &rarr;</a>
                             </div>
                         @else
                             <div class="p-8 text-center text-xs text-slate-500 space-y-2">

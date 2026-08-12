@@ -63,16 +63,23 @@ class LicenseController extends Controller
     /**
      * Display the Offline License Key Generator UI.
      */
-    public function generator()
+    public function generator(Request $request)
     {
         $publicKeyPem = LicenseService::getPublicKeyPem();
         $hasPrivateKey = LicenseService::hasPrivateKey();
         $installationId = InstallationService::getId();
 
+        $clientRef = $request->query('client');
+        $prefilledClient = null;
+        if ($clientRef) {
+            $prefilledClient = \App\Models\PortalClient::where('client_id', $clientRef)->first();
+        }
+
         return view('settings.license_generator', compact(
             'publicKeyPem',
             'hasPrivateKey',
-            'installationId'
+            'installationId',
+            'prefilledClient'
         ));
     }
 
