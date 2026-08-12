@@ -6,6 +6,9 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
+# Run composer scripts that were skipped during build
+php artisan package:discover --ansi || true
+
 # Cache config & routes for production
 php artisan config:cache
 php artisan route:cache

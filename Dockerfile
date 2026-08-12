@@ -45,8 +45,8 @@ RUN mkdir -p /var/www/html/storage/app/public \
 # Create minimal .env so artisan package:discover works during build
 RUN cp .env.example .env 2>/dev/null || printf "APP_NAME=PharmCare\nAPP_ENV=production\nAPP_KEY=base64:dGVtcG9yYXJ5a2V5Zm9yYnVpbGQxMjM0NTY3ODk=\nAPP_DEBUG=false\nDB_CONNECTION=sqlite\nDB_DATABASE=/var/www/html/database/database.sqlite\n" > .env
 
-# Install PHP dependencies (no dev)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install PHP dependencies (skip scripts - they run at startup via entrypoint)
+RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
