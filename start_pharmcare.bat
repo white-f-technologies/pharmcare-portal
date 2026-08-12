@@ -2,83 +2,86 @@
 title PharmCare Offline Desktop Application
 setlocal EnableDelayedExpansion
 
-set APPDATA_DIR=%APPDATA%\PharmCare
+set "APPDATA_DIR=%APPDATA%\PharmCare"
+set "APP_DIR=%~dp0"
+if "%APP_DIR:~-1%"=="\" set "APP_DIR=%APP_DIR:~0,-1%"
 
-REM Locate PHP binary (check bundled php folder first, then PATH, then XAMPP)
-if exist "%~dp0php\php.exe" (
-    set "PATH=%~dp0php;!PATH!"
+REM 1. Locate PHP binary
+set "PHP_BIN="
+if exist "%APP_DIR%\php\php.exe" (
+    set "PHP_BIN=%APP_DIR%\php\php.exe"
+) else if exist "C:\xampp\php\php.exe" (
+    set "PHP_BIN=C:\xampp\php\php.exe"
 ) else (
     where php >nul 2>&1
-    if errorlevel 1 (
-        if exist "C:\xampp\php\php.exe" (
-            set "PATH=C:\xampp\php;!PATH!"
-        ) else (
-            echo ERROR: PHP execution binary not found.
-            echo Please ensure PHP 8.2+ is installed or bundled in the application directory.
-            pause
-            exit /b 1
-        )
-    )
+    if not errorlevel 1 set "PHP_BIN=php"
 )
 
-REM Ensure writable data directory exists
+if "%PHP_BIN%"=="" (
+    echo ERROR: PHP execution binary not found.
+    echo Please ensure PHP 8.2+ is installed or bundled in the application directory.
+    pause
+    exit /b 1
+)
+
+REM Add PHP directory to PATH for this process
+for %%I in ("%PHP_BIN%") do set "PHP_DIR=%%~dpI"
+set "PATH=%PHP_DIR%;%PATH%"
+
+REM 2. Ensure writable data directory exists
 if not exist "%APPDATA_DIR%" mkdir "%APPDATA_DIR%"
 
-REM First-run: copy .env.example to writable location
+REM First-run: copy .env.example if .env missing
 if not exist "%APPDATA_DIR%\.env" (
     echo ========================================================
     echo   PHARMCARE - FIRST TIME SETUP
     echo ========================================================
     echo.
-    copy "%~dp0.env.example" "%APPDATA_DIR%\.env" > nul
+    copy "%APP_DIR%\.env.example" "%APPDATA_DIR%\.env" > nul
 )
 
-REM Copy .env from writable location to project root (artisan needs it here)
-copy "%APPDATA_DIR%\.env" "%~dp0.env" > nul 2>&1
+REM Copy .env to project root
+copy "%APPDATA_DIR%\.env" "%APP_DIR%\.env" > nul 2>&1
 
-REM Run bootstrap (generates key, migrations, seeds system data, creates admin)
+REM 3. Run bootstrap
 echo [1/3] Bootstrapping application...
-pushd "%~dp0"
-php artisan app:bootstrap
-if errorlevel 1 (
+pushd "%APP_DIR%"
+"%PHP_BIN%" artisan app:bootstrap
+if !errorlevel! neq 0 (
     echo.
     echo ERROR: Bootstrap failed. Please contact support.
+    popd
     pause
     exit /b 1
 )
 popd
 
-REM Save updated .env (with generated APP_KEY) back to writable location
-copy "%~dp0.env" "%APPDATA_DIR%\.env" > nul 2>&1
+REM Save updated .env
+copy "%APP_DIR%\.env" "%APPDATA_DIR%\.env" > nul 2>&1
 
-REM Ensure writable storage/app/public directory exists before link creation
+REM Ensure writable storage directory exists
 if not exist "%APPDATA_DIR%\storage\app\public" mkdir "%APPDATA_DIR%\storage\app\public"
 
-REM Ensure storage directory link exists (public/storage -> APPDATA storage)
-if exist "%~dp0public\storage" (
-    dir /a:l "%~dp0public" 2>nul | findstr /i "storage" >nul
-    if errorlevel 1 (
-        rem It is a plain directory copied by setup, remove it to enable junction link
-        rmdir /S /Q "%~dp0public\storage" >nul 2>&1
-    )
-)
-if not exist "%~dp0public\storage" (
-    mklink /J "%~dp0public\storage" "%APPDATA_DIR%\storage\app\public" >nul 2>&1
-)
-
-REM Kill any existing PHP server on port 8000
+REM 4. Kill any existing process on port 8000
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8000 ^| findstr LISTENING') do taskkill /PID %%a /F >nul 2>&1
 
-REM Start server hidden in background (no window)
+REM 5. Dynamically write and execute background launcher with exact PHP_BIN path
 echo [2/3] Starting server in background...
-wscript "%~dp0start_server.vbs"
+(
+    echo Set WshShell = CreateObject^("WScript.Shell"^)
+    echo WshShell.CurrentDirectory = "%APP_DIR%"
+    echo WshShell.Run "cmd /c ""%PHP_BIN%"" artisan serve --host=127.0.0.1 --port=8000", 0, False
+    echo Set WshShell = Nothing
+) > "%APPDATA_DIR%\launch_server.vbs"
 
-REM Wait for server to be ready
+wscript "%APPDATA_DIR%\launch_server.vbs"
+
+REM 6. Launch browser
 echo [3/3] Launching PharmCare...
-timeout /t 3 > nul
+ping 127.0.0.1 -n 4 > nul
 start "" "http://127.0.0.1:8000"
 
 echo.
 echo PharmCare is now running in the background.
 echo You may close this window.
-timeout /t 5 > nul
+ping 127.0.0.1 -n 5 > nul
