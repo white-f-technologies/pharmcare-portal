@@ -1,0 +1,29 @@
+{
+    "license_id": "PC-UG-475809",
+    "business_name": "ABC Drug Shop",
+    "business_id": "BUS-2686",
+    "edition": "PREMIUM",
+    "activated_modules": [
+        "unit_packaging",
+        "stock_ledger",
+        "medicine_images",
+        "advanced_inventory",
+        "fefo",
+        "stock_ageing",
+        "slow_moving",
+        "advanced_purchasing",
+        "supplier_analysis",
+        "advanced_credit",
+        "prescription",
+        "cashier_sessions",
+        "advanced_reports",
+        "approval_workflows",
+        "advanced_backup"
+    ],
+    "issue_date": "2026-08-11",
+    "expiry_date": null,
+    "license_type": "PERPETUAL",
+    "installation_limit": 1,
+    "status": "ACTIVE",
+    "signature": "ioG3PE+hA2wOsWw9vyktJ8+LvE43nOsOHPXHcCzyBWiAVVkZl2lXddVUChg7mKNNomDx6tsU5e97AHeedpXsxfz2/O7rVf4gEN5ky/JzTfF1sS+33CqA9Rl/xY8wRj109DTlP25FnBwUCycD5sD+ztNAst7YglE+MMoK2q/6ADymV21W50g/NTGW17leI6ZbNq5fXPhXsmxS1N2NTWU9sZbRqK0Tge1D7TP9KXzkX7gMJzVmR7b6M+Ak55kRqW/Kv/UbhxClzMGgRHdimf9wQub610fVn2JBxNWSZkCAbgh37SvPYiLkksaYSal2P+iysCYLBRiTpJEAcAF+TJz/qw=="
+}
