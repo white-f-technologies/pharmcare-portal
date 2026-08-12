@@ -17,6 +17,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'license' => \App\Http\Middleware\CheckLicense::class,
         ]);
 
+        $middleware->trustProxies(at: '*');
+
         // Run license enforcement on every web request
         $middleware->web(append: [
             \App\Http\Middleware\CheckLicense::class,
