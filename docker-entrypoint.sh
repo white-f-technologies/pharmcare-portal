@@ -37,6 +37,10 @@ php artisan migrate --force
 # Create storage link
 php artisan storage:link 2>/dev/null || true
 
+# Clear any stale caches first
+php artisan config:clear || true
+php artisan view:clear || true
+
 # Cache config & routes for production
 php artisan config:cache || true
 php artisan route:cache || true

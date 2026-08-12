@@ -26,7 +26,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-if (function_exists('app_data_path')) {
+if (env('PHARMCARE_DESKTOP_MODE', false) && function_exists('app_data_path')) {
     $app->useStoragePath(app_data_path('storage'));
 }
 
