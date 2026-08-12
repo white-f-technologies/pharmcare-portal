@@ -27,8 +27,9 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Set default PORT for Render
+# Environment variables for Render
 ENV PORT=10000
+ENV VIEW_COMPILED_PATH=/var/www/html/storage/framework/views
 
 # Set working directory
 WORKDIR /var/www/html
@@ -50,16 +51,14 @@ RUN mkdir -p /var/www/html/storage/app/public \
     && mkdir -p /var/www/html/bootstrap/cache \
     && touch /var/www/html/database/database.sqlite
 
+# Set open permissions so both root CLI and www-data web server can read/write
+RUN chmod -R 777 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+
 # Create minimal .env so artisan works during build
-RUN printf "APP_NAME=PharmCare\nAPP_ENV=production\nAPP_KEY=base64:dGVtcG9yYXJ5a2V5Zm9yYnVpbGQxMjM0NTY3ODk=\nAPP_DEBUG=false\nDB_CONNECTION=sqlite\nDB_DATABASE=/var/www/html/database/database.sqlite\n" > .env
+RUN printf "APP_NAME=PharmCare\nAPP_ENV=production\nAPP_KEY=base64:dGVtcG9yYXJ5a2V5Zm9yYnVpbGQxMjM0NTY3ODk=\nAPP_DEBUG=false\nDB_CONNECTION=sqlite\nDB_DATABASE=/var/www/html/database/database.sqlite\nVIEW_COMPILED_PATH=/var/www/html/storage/framework/views\n" > .env
 
 # Install PHP dependencies (skip scripts - they run at startup via entrypoint)
 RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction
-
-# Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage \
-    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # Copy entrypoint script and fix Windows CRLF line endings
 COPY docker-entrypoint.sh /usr/local/bin/
