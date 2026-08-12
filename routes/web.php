@@ -148,6 +148,8 @@ Route::middleware(['auth', 'verified', 'setup'])->group(function () {
             Route::get('/installations', [\App\Http\Controllers\VendorPortalController::class, 'installations'])->name('installations');
             Route::get('/releases', [\App\Http\Controllers\VendorPortalController::class, 'releases'])->name('releases');
             Route::post('/releases', [\App\Http\Controllers\VendorPortalController::class, 'storeRelease'])->name('releases.store');
+            Route::get('/license-generator', [\App\Http\Controllers\LicenseController::class, 'generator'])->name('license.generator');
+            Route::post('/license-generator', [\App\Http\Controllers\LicenseController::class, 'generate'])->name('license.generate');
         });
     });
 });

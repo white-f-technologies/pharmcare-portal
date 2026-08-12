@@ -91,7 +91,7 @@
                                     <td class="py-3.5 px-6 text-gray-600">{{ $c->location ?? '—' }}</td>
                                     <td class="py-3.5 px-6"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">{{ $c->status }}</span></td>
                                     <td class="py-3.5 px-6 text-right">
-                                        <a href="{{ route('settings.license.generator') }}?client={{ $c->client_id }}" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px]">
+                                        <a href="{{ route('vendor.license.generator') }}?client={{ $c->client_id }}" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px]">
                                             🔑 Issue License
                                         </a>
                                     </td>
