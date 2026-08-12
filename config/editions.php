@@ -41,6 +41,8 @@ return [
         'reports',
         'backup',
         'settings',
+        'prescriptions',
+        'medicine_images',
     ],
 
     /*
