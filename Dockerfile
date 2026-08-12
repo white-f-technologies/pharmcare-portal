@@ -30,6 +30,7 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 # Environment variables for Render
 ENV PORT=10000
 ENV VIEW_COMPILED_PATH=/var/www/html/storage/framework/views
+ENV VENDOR_MODE=true
 
 # Set working directory
 WORKDIR /var/www/html

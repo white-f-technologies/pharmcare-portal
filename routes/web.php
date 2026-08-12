@@ -140,17 +140,19 @@ Route::middleware(['auth', 'verified', 'setup'])->group(function () {
         // System Diagnostics
         Route::get('/admin/diagnostics', [\App\Http\Controllers\DiagnosticsController::class, 'index'])->name('admin.diagnostics');
 
-        // Vendor Control Center (PharmCare Vendor Portal)
-        Route::prefix('vendor-portal')->name('vendor.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\VendorPortalController::class, 'dashboard'])->name('dashboard');
-            Route::get('/clients', [\App\Http\Controllers\VendorPortalController::class, 'clients'])->name('clients');
-            Route::post('/clients', [\App\Http\Controllers\VendorPortalController::class, 'storeClient'])->name('clients.store');
-            Route::get('/installations', [\App\Http\Controllers\VendorPortalController::class, 'installations'])->name('installations');
-            Route::get('/releases', [\App\Http\Controllers\VendorPortalController::class, 'releases'])->name('releases');
-            Route::post('/releases', [\App\Http\Controllers\VendorPortalController::class, 'storeRelease'])->name('releases.store');
-            Route::get('/license-generator', [\App\Http\Controllers\LicenseController::class, 'generator'])->name('license.generator');
-            Route::post('/license-generator', [\App\Http\Controllers\LicenseController::class, 'generate'])->name('license.generate');
-        });
+        // Vendor Control Center (PharmCare Vendor Portal - strictly available when vendor_mode or private.key exists)
+        if (config('app.vendor_mode', false) || file_exists(storage_path('keys/private.key'))) {
+            Route::prefix('vendor-portal')->name('vendor.')->group(function () {
+                Route::get('/', [\App\Http\Controllers\VendorPortalController::class, 'dashboard'])->name('dashboard');
+                Route::get('/clients', [\App\Http\Controllers\VendorPortalController::class, 'clients'])->name('clients');
+                Route::post('/clients', [\App\Http\Controllers\VendorPortalController::class, 'storeClient'])->name('clients.store');
+                Route::get('/installations', [\App\Http\Controllers\VendorPortalController::class, 'installations'])->name('installations');
+                Route::get('/releases', [\App\Http\Controllers\VendorPortalController::class, 'releases'])->name('releases');
+                Route::post('/releases', [\App\Http\Controllers\VendorPortalController::class, 'storeRelease'])->name('releases.store');
+                Route::get('/license-generator', [\App\Http\Controllers\LicenseController::class, 'generator'])->name('license.generator');
+                Route::post('/license-generator', [\App\Http\Controllers\LicenseController::class, 'generate'])->name('license.generate');
+            });
+        }
     });
 });
 
