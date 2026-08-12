@@ -11,16 +11,24 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     sqlite3 \
+    dos2unix \
     && docker-php-ext-install pdo pdo_sqlite mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Configure Apache to listen on Render's PORT (default 10000) instead of 80
+RUN sed -i 's/Listen 80/Listen ${PORT}/' /etc/apache2/ports.conf
+RUN sed -i 's/:80/:${PORT}/' /etc/apache2/sites-available/000-default.conf
+
 # Set Apache DocumentRoot to Laravel's public directory
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Set default PORT for Render
+ENV PORT=10000
 
 # Set working directory
 WORKDIR /var/www/html
@@ -42,8 +50,8 @@ RUN mkdir -p /var/www/html/storage/app/public \
     && mkdir -p /var/www/html/bootstrap/cache \
     && touch /var/www/html/database/database.sqlite
 
-# Create minimal .env so artisan package:discover works during build
-RUN cp .env.example .env 2>/dev/null || printf "APP_NAME=PharmCare\nAPP_ENV=production\nAPP_KEY=base64:dGVtcG9yYXJ5a2V5Zm9yYnVpbGQxMjM0NTY3ODk=\nAPP_DEBUG=false\nDB_CONNECTION=sqlite\nDB_DATABASE=/var/www/html/database/database.sqlite\n" > .env
+# Create minimal .env so artisan works during build
+RUN printf "APP_NAME=PharmCare\nAPP_ENV=production\nAPP_KEY=base64:dGVtcG9yYXJ5a2V5Zm9yYnVpbGQxMjM0NTY3ODk=\nAPP_DEBUG=false\nDB_CONNECTION=sqlite\nDB_DATABASE=/var/www/html/database/database.sqlite\n" > .env
 
 # Install PHP dependencies (skip scripts - they run at startup via entrypoint)
 RUN composer install --no-dev --no-scripts --optimize-autoloader --no-interaction
@@ -53,11 +61,11 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
 
-# Copy entrypoint script
+# Copy entrypoint script and fix Windows CRLF line endings
 COPY docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+RUN dos2unix /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 10000
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["apache2-foreground"]
