@@ -7,15 +7,23 @@ if (!function_exists('app_data_path')) {
     {
         $base = getenv('APPDATA');
         if (!$base || $base === false) {
-            $base = $_SERVER['APPDATA'] ?? ($_SERVER['HOME'] . '/.pharmcare');
+            $base = $_SERVER['APPDATA'] ?? null;
         }
-        $path = $base . DIRECTORY_SEPARATOR . 'PharmCare';
+        if (!$base) {
+            $home = getenv('HOME') ?: ($_SERVER['HOME'] ?? null);
+            if ($home) {
+                $base = $home . DIRECTORY_SEPARATOR . '.pharmcare';
+            } else {
+                $base = storage_path('app_data');
+            }
+        }
+        $path = rtrim($base, '/\\') . DIRECTORY_SEPARATOR . 'PharmCare';
         if ($subpath !== '') {
-            $path .= DIRECTORY_SEPARATOR . ltrim($subpath, DIRECTORY_SEPARATOR);
+            $path .= DIRECTORY_SEPARATOR . ltrim($subpath, '/\\');
         }
-        $dir = dirname($path);
+        $dir = is_dir($path) ? $path : dirname($path);
         if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
+            @mkdir($dir, 0777, true);
         }
         return $path;
     }
