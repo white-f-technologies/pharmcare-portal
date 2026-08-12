@@ -40,6 +40,8 @@ php artisan storage:link 2>/dev/null || true
 # Sync Admin account if env variables are specified
 if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
     php artisan pharmcare:admin "$ADMIN_EMAIL" "$ADMIN_PASSWORD" || true
+    mkdir -p /var/www/html/storage/app_data/PharmCare
+    touch /var/www/html/storage/app_data/PharmCare/.setup_complete
 fi
 
 # Clear any stale caches first
