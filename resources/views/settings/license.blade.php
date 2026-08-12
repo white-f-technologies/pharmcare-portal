@@ -5,11 +5,8 @@
                 <h2 class="font-extrabold text-xl text-gray-900 leading-tight">
                     {{ __('License & System Edition') }}
                 </h2>
-                <p class="text-xs text-gray-500">{{ __('View active software license tier, modules, and offline activation tools') }}</p>
+                <p class="text-xs text-gray-500">{{ __('View active software license tier, modules, and activation tools') }}</p>
             </div>
-            <a href="{{ route('settings.license.generator') }}" class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl font-extrabold text-xs shadow-md transition">
-                <span>🔑 {{ __('Admin Key Generator') }}</span>
-            </a>
         </div>
     </x-slot>
 

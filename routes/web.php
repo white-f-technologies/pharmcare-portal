@@ -125,11 +125,9 @@ Route::middleware(['auth', 'verified', 'setup'])->group(function () {
         Route::post('/settings', [\App\Http\Controllers\SettingController::class, 'update'])->name('settings.update');
         Route::delete('/settings/logo', [\App\Http\Controllers\SettingController::class, 'removeLogo'])->name('settings.logo.remove');
 
-        // License Management & Key Generator
+        // Client License Management (Status View & Import/Activate)
         Route::get('/settings/license', [\App\Http\Controllers\LicenseController::class, 'index'])->name('settings.license');
         Route::post('/settings/license', [\App\Http\Controllers\LicenseController::class, 'activate'])->name('settings.license.activate');
-        Route::get('/settings/license/generator', [\App\Http\Controllers\LicenseController::class, 'generator'])->name('settings.license.generator');
-        Route::post('/settings/license/generator', [\App\Http\Controllers\LicenseController::class, 'generate'])->name('settings.license.generate');
 
         // Database Backup Management
         Route::get('/backups', [\App\Http\Controllers\BackupController::class, 'index'])->name('backups.index');

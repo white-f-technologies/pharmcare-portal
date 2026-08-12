@@ -183,18 +183,15 @@ class UpgradeSystemTest extends TestCase
     }
 
     #[Test]
-    public function license_generator_ui_and_download()
+    public function client_license_view_and_activation()
     {
-        $response = $this->get(route('settings.license.generator'));
+        $response = $this->get(route('settings.license'));
         $response->assertStatus(200);
-        $response->assertSee('Offline License Key Generator');
+        $response->assertSee('License & System Edition');
 
-        $postResponse = $this->post(route('settings.license.generate'), [
-            'business_name' => 'Generator Test Pharmacy',
-            'business_id' => 'GEN-999',
-            'edition' => 'PREMIUM',
-            'license_type' => 'PERPETUAL',
-            'action' => 'activate_now',
+        $payload = LicenseService::generateLicensePayload('Client Test Pharmacy', 'CLI-999', 'PREMIUM', 'PERPETUAL');
+        $postResponse = $this->post(route('settings.license.activate'), [
+            'license_json' => json_encode($payload),
         ]);
 
         $postResponse->assertRedirect(route('settings.license'));

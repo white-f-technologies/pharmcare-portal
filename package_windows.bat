@@ -25,9 +25,7 @@ if not errorlevel 1 set "ISCC_PATH=ISCC"
 if defined ISCC_PATH (
     echo Compiling installer with ISCC...
     "%ISCC_PATH%" installer.iss
-    if not errorlevel 1 (
-        echo Setup executable created: dist\PharmCare_Setup_v2.1.0.exe
-    )
+    echo Setup executable check complete.
 ) else (
     echo Note: Inno Setup (ISCC.exe) not detected on PATH.
     echo Standalone ZIP package generated in dist\ directory.
