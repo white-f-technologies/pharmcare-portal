@@ -29,6 +29,13 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[Dirs]
+Name: "{app}\storage\logs"
+Name: "{app}\storage\framework\cache\data"
+Name: "{app}\storage\framework\sessions"
+Name: "{app}\storage\framework\views"
+Name: "{app}\storage\app\public"
+
 [Files]
 ; Ship application code, vendor deps, .env.example, static assets, custom icon, and bundled php runtime if present
 ; EXCLUDE: .git, node_modules, dist, public/storage, storage/logs, storage/app, storage/framework/cache, storage/keys/private.key, tests, .env, database.sqlite

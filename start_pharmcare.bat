@@ -28,8 +28,13 @@ REM Add PHP directory to PATH for this process
 for %%I in ("%PHP_BIN%") do set "PHP_DIR=%%~dpI"
 set "PATH=%PHP_DIR%;%PATH%"
 
-REM 2. Ensure writable data directory exists
+REM 2. Ensure writable data and storage framework directories exist
 if not exist "%APPDATA_DIR%" mkdir "%APPDATA_DIR%"
+if not exist "%APP_DIR%\storage\logs" mkdir "%APP_DIR%\storage\logs"
+if not exist "%APP_DIR%\storage\framework\cache\data" mkdir "%APP_DIR%\storage\framework\cache\data"
+if not exist "%APP_DIR%\storage\framework\sessions" mkdir "%APP_DIR%\storage\framework\sessions"
+if not exist "%APP_DIR%\storage\framework\views" mkdir "%APP_DIR%\storage\framework\views"
+if not exist "%APP_DIR%\storage\app\public" mkdir "%APP_DIR%\storage\app\public"
 
 REM First-run: copy .env.example if .env missing
 if not exist "%APPDATA_DIR%\.env" (
