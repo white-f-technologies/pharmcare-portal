@@ -90,7 +90,12 @@
                                 <a href="{{ route('reports.sales') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium">{{ __('Sales Report') }}</a>
                                 <a href="{{ route('reports.inventory') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium">{{ __('Inventory Report') }}</a>
                                 <a href="{{ route('reports.expiry') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium">{{ __('Expiry Report') }}</a>
-                                <a href="{{ route('reports.ledger') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium border-t border-gray-100">{{ __('Stock Ledger Audit') }}</a>
+                                <a href="{{ route('reports.ledger') }}" class="flex items-center justify-between px-4 py-2 text-sm text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 font-medium border-t border-gray-100">
+                                    <span>{{ __('Stock Ledger Audit') }}</span>
+                                    @if(!feature_enabled('stock_ledger'))
+                                        <span class="px-1.5 py-0.5 text-[9px] font-extrabold uppercase rounded bg-amber-200 text-amber-800">PRO</span>
+                                    @endif
+                                </a>
                             </div>
                         </div>
                     @endif

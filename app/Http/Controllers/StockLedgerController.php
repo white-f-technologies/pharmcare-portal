@@ -10,6 +10,15 @@ class StockLedgerController extends Controller
 {
     public function index(Request $request)
     {
+        $isPremium = feature_enabled('stock_ledger');
+        $medicines = Medicine::where('is_active', true)->pluck('name', 'id');
+
+        // If feature is not enabled, don't query ledger data — show gated preview
+        if (!$isPremium) {
+            $ledgers = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20);
+            return view('reports.ledger', compact('ledgers', 'medicines', 'isPremium'));
+        }
+
         $query = StockLedger::with(['medicine', 'batch', 'user'])->latest();
 
         if ($request->filled('medicine_id')) {
@@ -29,8 +38,7 @@ class StockLedgerController extends Controller
         }
 
         $ledgers = $query->paginate(20);
-        $medicines = Medicine::where('is_active', true)->pluck('name', 'id');
 
-        return view('reports.ledger', compact('ledgers', 'medicines'));
+        return view('reports.ledger', compact('ledgers', 'medicines', 'isPremium'));
     }
 }

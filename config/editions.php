@@ -9,8 +9,8 @@
 | The LicenseService checks this map when application code calls
 | feature_enabled('some_feature').
 |
-| To add a new premium feature in the future, simply add its key
-| to the 'PREMIUM' array — no code changes elsewhere.
+| IMPORTANT: Only list features that have REAL working code behind them.
+| Do NOT add placeholder feature names with no controllers/views.
 |
 | Per-license overrides are possible via the `activated_modules` JSON
 | field stored in the license payload; those are merged on top of
@@ -24,7 +24,8 @@ return [
     |----------------------------------------------------------------------
     | DEFAULT Edition
     |----------------------------------------------------------------------
-    | Core pharmacy features available to every licensed installation.
+    | Core pharmacy features available to every installation.
+    | This covers 100% of daily pharmacy operations.
     */
 
     'DEFAULT' => [
@@ -49,7 +50,8 @@ return [
     |----------------------------------------------------------------------
     | PREMIUM Edition
     |----------------------------------------------------------------------
-    | Everything in DEFAULT plus advanced modules.
+    | Everything in DEFAULT plus advanced reporting & audit modules.
+    | Each premium feature has real working code gating it.
     */
 
     'PREMIUM' => [
@@ -67,19 +69,14 @@ return [
         'reports',
         'backup',
         'settings',
-
-        // --- premium-only ---
-        'advanced_reports',
-        'advanced_inventory',
-        'ledger_audit',
-        'prescription',
-        'fefo',
-        'stock_ageing',
-        'approval_workflows',
-        'multi_terminal',
-        'advanced_analytics',
-        'stock_ledger',
+        'prescriptions',
         'medicine_images',
+
+        // --- premium-only (real working code) ---
+        'advanced_reports',     // CSV export on Sales Report
+        'advanced_inventory',   // CSV export on Inventory Report + cost/retail columns
+        'stock_ledger',         // Full Stock Ledger Audit trail page
     ],
 
 ];
+

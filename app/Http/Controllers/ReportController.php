@@ -29,7 +29,42 @@ class ReportController extends Controller
         $totalTransactions = $sales->count();
         $averagePerTransaction = $totalTransactions > 0 ? $totalRevenue / $totalTransactions : 0;
 
+        if ($request->get('export') === 'csv') {
+            if (!feature_enabled('advanced_reports')) {
+                return redirect()->back()->with('error', 'CSV export is a Premium feature. Activate your Premium license under Settings → License & Edition to unlock exports.');
+            }
+            return $this->exportSalesCsv($sales);
+        }
+
         return view('reports.sales', compact('sales', 'from', 'to', 'grossRevenue', 'totalRefunds', 'totalRevenue', 'totalTransactions', 'averagePerTransaction'));
+    }
+
+    private function exportSalesCsv($sales)
+    {
+        $filename = 'sales_report_' . date('Y-m-d_H-i') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=\"$filename\"",
+        ];
+
+        $callback = function () use ($sales) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Invoice No', 'Customer', 'Total', 'Payment Method', 'Payment Status', 'Date']);
+
+            foreach ($sales as $sale) {
+                fputcsv($file, [
+                    $sale->invoice_no,
+                    $sale->customer?->name ?? 'Walk-in',
+                    number_format((float)$sale->total, 2),
+                    ucfirst($sale->payment_method),
+                    ucfirst($sale->payment_status),
+                    $sale->created_at->format('Y-m-d H:i'),
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
     public function inventory(Request $request)
@@ -108,6 +143,9 @@ class ReportController extends Controller
         $categories = \App\Models\Category::pluck('name', 'id');
 
         if ($request->get('export') === 'csv') {
+            if (!feature_enabled('advanced_inventory')) {
+                return redirect()->back()->with('error', 'CSV export is a Premium feature. Activate your Premium license under Settings → License & Edition to unlock exports.');
+            }
             return $this->exportInventoryCsv($medicines);
         }
 
