@@ -10,6 +10,29 @@
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            @if(!feature_enabled('ledger_audit'))
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-6 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-start gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center font-bold text-xl shrink-0 shadow-md">
+                            ⭐
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-base font-extrabold text-gray-900">Stock Ledger Audit &mdash; PRO Feature</h3>
+                                <span class="px-2.5 py-0.5 text-[10px] font-extrabold uppercase rounded-full bg-amber-200 text-amber-900 tracking-wider">PREMIUM EDITION</span>
+                            </div>
+                            <p class="text-xs text-gray-600 mt-1 max-w-2xl leading-relaxed">
+                                Your pharmacy is currently operating on the <strong class="text-emerald-700">DEFAULT Edition</strong>. All daily POS sales, unit conversions, expenses, and inventory reports are 100% active and functional. Import your Premium license key under Settings to enable complete itemized audit trails.
+                            </p>
+                        </div>
+                    </div>
+                    <a href="{{ route('settings.license') }}" class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-extrabold text-xs rounded-xl shadow transition shrink-0 flex items-center gap-1.5">
+                        <span>🔑 Activate Premium</span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </a>
+                </div>
+            @endif
+
             <!-- Filter Card -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <form method="GET" action="{{ route('reports.ledger') }}" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
