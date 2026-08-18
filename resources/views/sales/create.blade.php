@@ -1,34 +1,17 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <h2 class="font-bold text-2xl text-gray-800 leading-tight">{{ __('New Sale') }}</h2>
-                <div class="p-2 bg-emerald-100 text-emerald-700 rounded-lg flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2 text-sm">
-                <div class="w-9 h-9 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                </div>
-                <div>
-                    <div class="font-semibold text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="text-xs text-gray-500 capitalize">{{ Auth::user()->role }}</div>
-                </div>
-            </div>
-        </div>
-    </x-slot>
+    {{-- No x-slot header to maximize vertical space for POS terminal --}}
 
-    <div class="py-6 bg-slate-50 min-h-screen" x-data="posForm()">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-
-            <!-- Error Banner -->
-            <div x-show="errorMessage" x-transition class="p-4 bg-rose-100 border border-rose-400 text-rose-800 rounded-xl shadow-sm flex items-center justify-between" style="display: none;">
-                <div class="flex items-center gap-2 text-xs font-semibold">
-                    <svg class="w-5 h-5 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <!-- POS Main Container (Light Blue Palette, Natural Page Scrolling, Spacious Well-Structured Layout) -->
+    <div class="py-4 px-3 sm:px-5 bg-slate-100/90 min-h-screen" x-data="posForm()">
+        <div class="max-w-[1650px] mx-auto space-y-4">
+        
+            <!-- Error Alert Toast -->
+            <div x-show="errorMessage" x-transition class="p-3.5 bg-rose-50 border border-rose-300 text-rose-800 rounded-xl shadow-sm flex items-center justify-between" style="display: none;">
+                <div class="flex items-center gap-2.5 text-xs font-bold">
+                    <svg class="w-4 h-4 text-rose-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                     <span x-text="errorMessage"></span>
                 </div>
-                <button type="button" @click="errorMessage = ''" class="text-rose-600 hover:text-rose-800 font-bold text-sm">&times;</button>
+                <button type="button" @click="errorMessage = ''" class="text-rose-600 hover:text-rose-800 font-bold text-base leading-none p-1">&times;</button>
             </div>
 
             <form @submit.prevent="submitSale" id="sale-form">
@@ -40,206 +23,289 @@
                 <input type="hidden" name="tax" x-model="tax">
                 <input type="hidden" name="total" x-model="grandTotal">
 
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
-                    <!-- Left Column: Search & Popular Medicines (7 Columns) -->
-                    <div class="lg:col-span-7 space-y-5">
+                    <!-- LEFT PANE: Search, Category Filters & Independently Scrollable Medicine Catalog (7 or 8 cols) -->
+                    <div class="lg:col-span-7 xl:col-span-8 bg-white rounded-2xl shadow-xs border border-gray-200 overflow-hidden flex flex-col">
                         
-                        <!-- Search & Barcode Card -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-                            <div class="relative" @click.outside="searchResults = []">
-                                <div class="flex items-center gap-2">
-                                    <div class="relative flex-1">
-                                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                                        </div>
-                                        <input type="text" x-model="searchQuery" @input="searchMedicines" placeholder="{{ __('Search medicine by name or scan barcode (type 1 letter...)') }}" class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition" autofocus />
+                        <!-- Top Toolbar: Search, Barcode Scanner & View Mode Toggle -->
+                        <div class="p-4 border-b border-gray-100 bg-white shrink-0 space-y-3">
+                            
+                            <div class="flex items-center gap-3">
+                                <!-- Styled Search Bar -->
+                                <div class="relative flex-1" @click.outside="searchResults = []">
+                                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                        <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                                     </div>
-                                    <button type="button" class="p-2.5 border border-gray-200 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 transition" title="{{ __('Barcode Scanner') }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4m12 6H8m12-12H8"/></svg>
+                                    <input type="text" x-model="searchQuery" @input="searchMedicines" placeholder="{{ __('Search medicine by name, generic, or scan barcode...') }}" class="w-full pl-10 pr-9 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white transition shadow-2xs" autofocus />
+                                    <button type="button" x-show="searchQuery" @click="searchQuery = ''; searchResults = []" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+
+                                    <!-- Live Autocomplete Overlay -->
+                                    <div x-show="searchResults.length > 0" class="absolute z-50 mt-1.5 w-full bg-white shadow-2xl rounded-2xl border border-gray-200 max-h-72 overflow-y-auto divide-y divide-gray-100 custom-scrollbar" style="display: none;">
+                                        <template x-for="med in searchResults" :key="med.batch_id">
+                                            <div @click="addToCart(med)" :class="med.stock_qty <= 0 ? 'opacity-60 bg-gray-50 cursor-not-allowed' : 'hover:bg-sky-50/70 cursor-pointer'" class="p-3.5 flex items-center justify-between transition">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center font-bold text-xs shrink-0 border border-sky-100">
+                                                        <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                                    </div>
+                                                    <div>
+                                                        <div class="font-bold text-gray-900 text-xs sm:text-sm flex items-center gap-1.5">
+                                                            <span x-text="med.name"></span>
+                                                            <template x-if="med.stock_qty <= 0">
+                                                                <span class="px-1.5 py-0.2 bg-rose-100 text-rose-700 rounded text-[9px] font-bold">{{ __('Out of Stock') }}</span>
+                                                            </template>
+                                                        </div>
+                                                        <div class="text-[11px] text-gray-500" x-text="med.generic_name + ' • ' + med.category_name"></div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-right shrink-0">
+                                                    <div class="font-black text-sky-700 text-xs sm:text-sm" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + parseFloat(med.selling_price).toLocaleString()"></div>
+                                                    <div class="text-[10px] font-bold text-gray-400" x-text="'Stock: ' + med.stock_qty + ' ' + med.base_unit + 's'"></div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <!-- Styled Barcode Scanner Light Blue Quick Button -->
+                                <button type="button" class="btn-sky-light px-3.5 py-2.5 rounded-xl transition shrink-0 flex items-center gap-2 text-xs font-bold shadow-2xs" title="{{ __('Scan Barcode') }}">
+                                    <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m0 14v1m-7-7h1m14 0h1m-3.293-6.293l-.707.707M6.707 17.293l-.707.707m0-12l.707.707m10.586 10.586l.707.707M4 8V6a2 2 0 012-2h2m8 0h2a2 2 0 012 2v2m0 8v2a2 2 0 01-2 2h-2m-8 0H6a2 2 0 01-2-2v-2"/></svg>
+                                    <span class="hidden sm:inline font-bold">{{ __('Scan Barcode') }}</span>
+                                </button>
+
+                                <!-- View Mode Toggle (Grid vs Compact Table List) -->
+                                <div class="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50 p-0.5 shrink-0 shadow-2xs">
+                                    <button type="button" @click="viewMode = 'grid'" :class="viewMode === 'grid' ? 'bg-white text-sky-700 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'" class="p-2 rounded-lg text-xs transition" title="{{ __('Grid View') }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                                    </button>
+                                    <button type="button" @click="viewMode = 'list'" :class="viewMode === 'list' ? 'bg-white text-sky-700 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'" class="p-2 rounded-lg text-xs transition" title="{{ __('List View') }}">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
                                     </button>
                                 </div>
+                            </div>
 
-                                <!-- Live Search Results Dropdown -->
-                                <div x-show="searchResults.length > 0" class="absolute z-30 mt-2 w-full bg-white shadow-xl rounded-xl border border-gray-100 max-h-72 overflow-y-auto divide-y divide-gray-100" style="display: none;">
-                                    <template x-for="med in searchResults" :key="med.batch_id">
-                                        <div @click="addToCart(med)" :class="med.stock_qty <= 0 ? 'opacity-60 bg-gray-50 cursor-not-allowed' : 'hover:bg-emerald-50 cursor-pointer'" class="p-3 flex items-center justify-between transition">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 bg-gray-100 rounded-lg p-1 flex items-center justify-center shrink-0 border border-gray-200">
-                                                    <template x-if="med.image_url">
-                                                        <img :src="med.image_url" class="w-full h-full object-contain">
-                                                    </template>
-                                                    <template x-if="!med.image_url">
-                                                        <svg class="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                                                    </template>
-                                                </div>
-                                                <div>
-                                                    <div class="font-semibold text-gray-800 text-sm flex items-center gap-2">
-                                                        <span x-text="med.name"></span>
-                                                        <template x-if="med.stock_qty <= 0">
-                                                            <span class="px-1.5 py-0.5 bg-rose-100 text-rose-700 rounded text-[10px] font-bold">{{ __('Out of Stock') }}</span>
-                                                        </template>
-                                                    </div>
-                                                    <div class="text-xs text-gray-500" x-text="med.generic_name"></div>
-                                                    <div class="text-xs" :class="med.stock_qty <= 0 ? 'text-rose-600 font-bold' : 'text-gray-400'" x-text="'Batch: ' + med.batch_number + ' • Stock: ' + med.stock_qty"></div>
-                                                </div>
-                                            </div>
-                                            <div class="text-right">
-                                                <div class="font-bold text-emerald-600 text-sm" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + parseFloat(med.selling_price).toLocaleString()"></div>
-                                                <button type="button" :disabled="med.stock_qty <= 0" :class="med.stock_qty <= 0 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-emerald-500 hover:bg-emerald-600 text-white'" class="mt-1 px-2.5 py-1 rounded text-xs font-semibold transition">
-                                                    <span x-text="med.stock_qty <= 0 ? 'Out of Stock' : '+ Add'"></span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </div>
+                            <!-- Horizontal Category Filter Pills (Light Blue Theme) -->
+                            <div class="flex items-center gap-2 overflow-x-auto pt-1 pb-0.5 custom-scrollbar border-t border-gray-100">
+                                <button type="button" @click="selectedCategory = ''" :class="selectedCategory === '' ? 'btn-sky-primary font-black shadow-sm' : 'bg-slate-100 hover:bg-sky-50 hover:text-sky-800 text-slate-700 font-semibold'" class="px-3.5 py-1.5 rounded-xl text-xs shrink-0 transition flex items-center gap-2">
+                                    <span>{{ __('All') }}</span>
+                                    <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="selectedCategory === '' ? 'bg-sky-800 text-white' : 'bg-slate-200 text-slate-700'" x-text="popularMedicines.length"></span>
+                                </button>
+                                @foreach($categories as $cat)
+                                    <button type="button" @click="selectedCategory = '{{ $cat->id }}'" :class="selectedCategory === '{{ $cat->id }}' ? 'btn-sky-primary font-black shadow-sm' : 'bg-slate-100 hover:bg-sky-50 hover:text-sky-800 text-slate-700 font-semibold'" class="px-3.5 py-1.5 rounded-xl text-xs shrink-0 transition whitespace-nowrap flex items-center gap-2">
+                                        <span>{{ $cat->name }}</span>
+                                        @if(isset($cat->medicines_count) && $cat->medicines_count > 0)
+                                            <span class="px-1.5 py-0.2 rounded-full text-[10px]" :class="selectedCategory === '{{ $cat->id }}' ? 'bg-sky-800 text-white' : 'bg-slate-200 text-slate-700'">{{ $cat->medicines_count }}</span>
+                                        @endif
+                                    </button>
+                                @endforeach
                             </div>
                         </div>
 
-                        <!-- Popular Medicines Grid Card -->
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                            <h3 class="font-bold text-gray-800 text-base mb-4 flex items-center justify-between">
-                                <span>{{ __('Popular Medicines') }}</span>
-                                <span class="text-xs text-gray-400 font-normal" x-show="searchQuery.trim().length > 0" x-text="'Showing matches for &quot;' + searchQuery + '&quot;'"></span>
-                            </h3>
+                        <!-- Active Catalog Header Bar -->
+                        <div class="px-4 py-2 bg-slate-50 border-b border-gray-100 flex items-center justify-between text-xs text-gray-500 shrink-0">
+                            <div class="font-bold text-gray-700 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                <span>{{ __('Medicine Catalog') }}</span>
+                                <span class="text-sky-700 font-extrabold" x-text="'(' + filteredPopularMedicines.length + ' available)'"></span>
+                            </div>
+                            <div class="text-[11px] text-slate-400 font-medium">
+                                {{ __('Click any product to add to order') }}
+                            </div>
+                        </div>
 
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <!-- SEPARATELY SCROLLABLE MEDICINE CATALOG SECTION (Fixed max-height with dedicated visible scrollbar) -->
+                        <div class="overflow-y-auto max-h-[640px] p-4 custom-scrollbar bg-slate-50/50">
+                            
+                            <!-- GRID VIEW MODE (Bigger, Clear Product Images) -->
+                            <div x-show="viewMode === 'grid'" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 <template x-for="med in filteredPopularMedicines" :key="med.batch_id">
-                                    <div class="border border-gray-200 rounded-xl p-3 bg-white hover:border-emerald-300 hover:shadow-md transition flex flex-col justify-between text-center group relative overflow-hidden">
+                                    <div @click="addToCart(med)" :class="med.stock_qty <= 0 ? 'opacity-50 bg-gray-50 border-gray-200 cursor-not-allowed' : 'bg-white border-slate-200 hover:border-sky-500 hover:shadow-md cursor-pointer'" class="border rounded-2xl p-3.5 transition-all duration-150 flex flex-col justify-between text-left relative overflow-hidden group">
                                         
-                                        <!-- Out of Stock Badge -->
+                                        <!-- Out of Stock Pill -->
                                         <template x-if="med.stock_qty <= 0">
-                                            <div class="absolute top-2 right-2 px-2 py-0.5 bg-rose-500 text-white rounded text-[10px] font-bold z-10 shadow-sm">
-                                                {{ __('Out of Stock') }}
+                                            <div class="absolute top-2 right-2 px-2 py-0.5 bg-rose-500 text-white rounded-md text-[9px] font-extrabold z-10 shadow-xs">
+                                                OUT OF STOCK
                                             </div>
                                         </template>
 
-                                        <div class="h-28 bg-slate-50 rounded-lg p-2 mb-3 flex items-center justify-center border border-gray-100 group-hover:bg-emerald-50/50 transition">
+                                        <!-- Prominent Larger Medicine Visual -->
+                                        <div class="h-28 sm:h-32 bg-slate-50 rounded-xl mb-3 flex items-center justify-center border border-slate-100 group-hover:bg-sky-50/40 transition p-2 relative">
                                             <template x-if="med.image_url">
-                                                <img :src="med.image_url" :alt="med.name" class="max-h-full max-w-full object-contain" :class="med.stock_qty <= 0 ? 'grayscale opacity-50' : ''">
+                                                <img :src="med.image_url" :alt="med.name" class="max-h-full max-w-full object-contain p-1 group-hover:scale-105 transition duration-200" :class="med.stock_qty <= 0 ? 'grayscale opacity-50' : ''">
                                             </template>
                                             <template x-if="!med.image_url">
-                                                <svg class="w-12 h-12 text-emerald-500" :class="med.stock_qty <= 0 ? 'text-gray-300' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                                                <div class="w-12 h-12 rounded-full bg-sky-100/70 text-sky-600 flex items-center justify-center group-hover:scale-110 transition duration-200">
+                                                    <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+                                                </div>
                                             </template>
                                         </div>
-                                        <div>
-                                            <h4 class="font-bold text-gray-800 text-xs line-clamp-1" x-text="med.name"></h4>
-                                            <div class="text-xs text-emerald-600 font-semibold mt-1" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + parseFloat(med.selling_price).toLocaleString()"></div>
-                                            <div class="text-[10px] mt-0.5" :class="med.stock_qty <= 0 ? 'text-rose-600 font-bold' : 'text-gray-400'" x-text="'Stock: ' + med.stock_qty"></div>
+
+                                        <!-- Details -->
+                                        <div class="space-y-1">
+                                            <h4 class="font-extrabold text-gray-900 text-xs sm:text-sm leading-tight line-clamp-2 group-hover:text-sky-700 transition" x-text="med.name" :title="med.name"></h4>
+                                            <div class="text-[11px] text-gray-400 line-clamp-1" x-text="med.category_name"></div>
+                                            <div class="text-xs sm:text-sm text-sky-700 font-black mt-1" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + parseFloat(med.selling_price).toLocaleString()"></div>
                                         </div>
 
-                                        <button type="button" @click="addToCart(med)" :disabled="med.stock_qty <= 0" :class="med.stock_qty <= 0 ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white'" class="mt-3 w-full py-1.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1">
-                                            <span x-text="med.stock_qty <= 0 ? '🚫 Out of Stock' : '+ Add'"></span>
-                                        </button>
+                                        <!-- Stock & Quick Action Light Blue Button -->
+                                        <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                                            <span :class="med.stock_qty <= 0 ? 'text-rose-600 font-bold' : 'text-slate-500 font-semibold'" x-text="'Stock: ' + med.stock_qty + ' ' + med.base_unit + 's'"></span>
+                                            <span class="btn-sky-light font-black px-3 py-1 rounded-lg transition">+ Add</span>
+                                        </div>
                                     </div>
                                 </template>
                             </div>
 
-                            <div x-show="filteredPopularMedicines.length === 0" class="py-8 text-center text-gray-400 text-xs">
-                                {{ __('No medicines match your search.') }}
+                            <!-- COMPACT TABLE LIST VIEW MODE -->
+                            <div x-show="viewMode === 'list'" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                                <table class="w-full text-left text-xs sm:text-sm divide-y divide-slate-200">
+                                    <thead class="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 tracking-wider">
+                                        <tr>
+                                            <th class="py-3 px-4">{{ __('Medicine Name') }}</th>
+                                            <th class="py-3 px-4">{{ __('Category') }}</th>
+                                            <th class="py-3 px-4 text-right">{{ __('Price') }}</th>
+                                            <th class="py-3 px-4 text-center">{{ __('Stock') }}</th>
+                                            <th class="py-3 px-4 text-right">{{ __('Action') }}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 font-medium">
+                                        <template x-for="med in filteredPopularMedicines" :key="med.batch_id">
+                                            <tr @click="addToCart(med)" :class="med.stock_qty <= 0 ? 'bg-gray-50 opacity-60 cursor-not-allowed' : 'hover:bg-sky-50/60 cursor-pointer'" class="transition">
+                                                <td class="py-3 px-4 font-bold text-gray-900">
+                                                    <div x-text="med.name"></div>
+                                                    <div class="text-[11px] font-normal text-gray-400" x-text="med.generic_name"></div>
+                                                </td>
+                                                <td class="py-3 px-4 text-gray-500 text-xs" x-text="med.category_name"></td>
+                                                <td class="py-3 px-4 text-right font-extrabold text-sky-700" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + parseFloat(med.selling_price).toLocaleString()"></td>
+                                                <td class="py-3 px-4 text-center">
+                                                    <span class="px-2.5 py-0.5 rounded text-[11px] font-bold" :class="med.stock_qty <= 0 ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-700'" x-text="med.stock_qty + ' ' + med.base_unit + 's'"></span>
+                                                </td>
+                                                <td class="py-3 px-4 text-right">
+                                                    <button type="button" :disabled="med.stock_qty <= 0" :class="med.stock_qty <= 0 ? 'bg-gray-200 text-gray-400' : 'btn-sky-primary shadow-xs'" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition">
+                                                        <span x-text="med.stock_qty <= 0 ? 'Out' : '+ Add'"></span>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
                             </div>
 
-                            <div class="mt-5 text-center">
-                                <a href="{{ route('medicines.index') }}" class="inline-flex items-center justify-center px-4 py-2 bg-slate-100 hover:bg-slate-200 text-gray-700 text-xs font-semibold rounded-lg transition gap-2">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                                    {{ __('View All Medicines') }}
-                                </a>
+                            <!-- Empty State -->
+                            <div x-show="filteredPopularMedicines.length === 0" class="py-16 text-center text-gray-400 text-xs">
+                                <p class="font-bold text-gray-600">{{ __('No medicines found matching criteria') }}</p>
+                                <p class="text-[11px] text-gray-400 mt-1">{{ __('Try adjusting category filter or search query.') }}</p>
                             </div>
+
                         </div>
 
                     </div>
 
-                    <!-- Right Column: Cart & Checkout (5 Columns) -->
-                    <div class="lg:col-span-5 space-y-5">
+                    <!-- RIGHT PANE: Cart Terminal & Docked Checkout (Sticky to top on desktop) -->
+                    <div class="lg:col-span-5 xl:col-span-4 bg-white rounded-2xl shadow-xs border border-gray-200 overflow-hidden flex flex-col lg:sticky lg:top-4 lg:self-start">
                         
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col justify-between">
-                            
-                            <!-- Cart Header -->
-                            <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
-                                <h3 class="font-bold text-gray-800 text-base flex items-center gap-2">
-                                    <span>{{ __('Cart') }}</span>
-                                    <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold" x-text="cart.length"></span>
-                                </h3>
-                                <button type="button" @click="clearCart" x-show="cart.length > 0" class="text-xs text-red-500 hover:text-red-700 font-semibold flex items-center gap-1">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                    {{ __('Clear Cart') }}
-                                </button>
-                            </div>
-
-                            <!-- Cart Table Header -->
-                            <div x-show="cart.length > 0">
-                                <div class="grid grid-cols-12 text-[11px] font-bold text-gray-400 uppercase tracking-wider pb-2 border-b border-gray-100">
-                                    <div class="col-span-5">{{ __('Medicine') }}</div>
-                                    <div class="col-span-3 text-center">{{ __('QTY') }}</div>
-                                    <div class="col-span-2 text-right">{{ __('Price') }}</div>
-                                    <div class="col-span-2 text-right">{{ __('Total') }}</div>
+                        <!-- Cart Top Header -->
+                        <div class="p-4 border-b border-gray-100 bg-white flex items-center justify-between shrink-0">
+                            <div class="flex items-center gap-2.5">
+                                <span class="p-2 bg-sky-100 text-sky-800 rounded-xl">
+                                    <svg class="w-4 h-4 text-sky-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                                </span>
+                                <div>
+                                    <h3 class="font-extrabold text-gray-900 text-sm leading-tight">{{ __('Current Order') }}</h3>
+                                    <div class="text-[11px] text-slate-500 font-semibold" x-text="cart.length + (cart.length === 1 ? ' item selected' : ' items selected')"></div>
                                 </div>
+                            </div>
+                            <button type="button" @click="clearCart" x-show="cart.length > 0" class="text-xs text-rose-600 hover:text-rose-800 hover:bg-rose-50 px-2.5 py-1 rounded-lg font-bold flex items-center gap-1 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                <span>{{ __('Clear All') }}</span>
+                            </button>
+                        </div>
 
-                                 <!-- Cart Items List -->
-                                <div class="divide-y divide-gray-100 max-h-72 overflow-y-auto py-2">
-                                    <template x-for="(item, idx) in cart" :key="idx">
-                                        <div class="py-3 space-y-1 text-xs">
-                                            <div class="grid grid-cols-12 items-center">
-                                                <div class="col-span-5 flex items-center gap-2 pr-1">
-                                                    <div class="w-8 h-8 bg-gray-50 border border-gray-200 rounded p-0.5 shrink-0 flex items-center justify-center">
-                                                        <template x-if="item.image_url">
-                                                            <img :src="item.image_url" class="max-h-full max-w-full object-contain">
-                                                        </template>
-                                                        <template x-if="!item.image_url">
-                                                            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
-                                                        </template>
-                                                    </div>
-                                                    <div class="truncate">
-                                                        <div class="font-bold text-gray-800 truncate" x-text="item.name"></div>
-                                                        <div class="text-[10px] text-gray-400 font-semibold truncate" x-text="item.batch_number ? 'Batch: ' + item.batch_number : ''"></div>
-                                                    </div>
-                                                </div>
-
-                                                <!-- Qty stepper controls -->
-                                                <div class="col-span-3 flex items-center justify-center">
-                                                    <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
-                                                        <button type="button" @click="decrementQty(idx)" class="px-2 py-1 text-gray-600 hover:bg-gray-200 transition font-bold">-</button>
-                                                        <span class="px-2 py-1 font-bold text-gray-800 text-xs" x-text="item.quantity"></span>
-                                                        <button type="button" @click="incrementQty(idx)" class="px-2 py-1 text-gray-600 hover:bg-gray-200 transition font-bold">+</button>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-span-2 text-right font-medium text-gray-700 text-[11px]" x-text="item.unit_price.toLocaleString()"></div>
-
-                                                <div class="col-span-2 flex items-center justify-end gap-1.5">
-                                                    <span class="font-bold text-gray-900 text-xs" x-text="(item.quantity * item.unit_price).toLocaleString()"></span>
-                                                    <button type="button" @click="removeFromCart(idx)" class="text-red-400 hover:text-red-600 transition p-0.5">
-                                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                    </button>
-                                                </div>
+                        <!-- SEPARATELY SCROLLABLE CART LINE ITEMS SECTION (Well-Spaced, Clean Cards) -->
+                        <div class="overflow-y-auto max-h-80 sm:max-h-96 p-3.5 space-y-3 custom-scrollbar bg-slate-50/40">
+                            <template x-for="(item, idx) in cart" :key="idx">
+                                <div class="bg-white border border-slate-200/90 rounded-2xl p-3.5 space-y-3 shadow-2xs hover:border-sky-300 hover:shadow-xs transition">
+                                    
+                                    <!-- Top Row: Name, Generic, Batch & Remove Button -->
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div class="min-w-0 flex-1">
+                                            <h4 class="font-extrabold text-slate-900 text-xs sm:text-sm leading-snug truncate" x-text="item.name"></h4>
+                                            <div class="flex items-center gap-2 mt-1 flex-wrap">
+                                                <template x-if="item.batch_number">
+                                                    <span class="text-[10px] text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md font-mono font-medium" x-text="'Batch: ' + item.batch_number"></span>
+                                                </template>
+                                                <span class="text-[10px] text-slate-400 truncate" x-text="item.generic_name"></span>
                                             </div>
-
-                                            <!-- Packaging Unit Selector -->
-                                            <template x-if="item.units && item.units.length > 0">
-                                                <div class="flex items-center justify-between pl-10 pr-2 pt-1">
-                                                    <span class="text-[10px] text-gray-400 font-semibold">Unit:</span>
-                                                    <select x-model="item.unit_name" @change="changeUnit(idx, $event.target.value)" class="text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded py-0.5 px-1.5 focus:ring-emerald-500">
-                                                        <template x-for="u in item.units" :key="u.unit_name">
-                                                            <option :value="u.unit_name" x-text="u.unit_name + (u.conversion_factor > 1 ? ' (' + u.conversion_factor + ' ' + item.base_unit + 's)' : '')"></option>
-                                                        </template>
-                                                    </select>
-                                                </div>
-                                            </template>
                                         </div>
-                                    </template>
+                                        <button type="button" @click="removeFromCart(idx)" class="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-1.5 rounded-xl transition shrink-0" title="{{ __('Remove item') }}">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </div>
+
+                                    <!-- Middle Row: Packaging Unit Selector & Unit Price Badge -->
+                                    <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                                        <template x-if="item.units && item.units.length > 0">
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider shrink-0">Unit:</label>
+                                                <select x-model="item.unit_name" @change="changeUnit(idx, $event.target.value)" class="text-xs font-bold text-sky-950 bg-sky-50 border border-sky-300 rounded-xl py-1 px-2.5 focus:ring-sky-500 focus:border-sky-500 shadow-2xs">
+                                                    <template x-for="u in item.units" :key="u.unit_name">
+                                                        <option :value="u.unit_name" x-text="u.unit_name + (u.conversion_factor > 1 ? ' (' + u.conversion_factor + ' ' + item.base_unit + 's)' : '')"></option>
+                                                    </template>
+                                                </select>
+                                            </div>
+                                        </template>
+                                        <div class="text-right shrink-0">
+                                            <div class="text-[10px] text-slate-400 font-medium">Rate / Unit</div>
+                                            <div class="text-xs font-bold text-slate-700" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + item.unit_price.toLocaleString()"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Bottom Row: Stepper Quantity Controls & Total Item Price -->
+                                    <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+                                        <!-- Quantity Stepper -->
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Qty:</span>
+                                            <div class="flex items-center border border-slate-200 rounded-xl overflow-hidden bg-slate-50 shadow-2xs">
+                                                <button type="button" @click="decrementQty(idx)" class="w-8 h-8 flex items-center justify-center text-slate-700 hover:bg-sky-500 hover:text-white transition font-black text-sm">-</button>
+                                                <span class="px-2.5 py-1 font-extrabold text-slate-900 text-xs min-w-[28px] text-center bg-white" x-text="item.quantity"></span>
+                                                <button type="button" @click="incrementQty(idx)" class="w-8 h-8 flex items-center justify-center text-slate-700 hover:bg-sky-500 hover:text-white transition font-black text-sm">+</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Line Total -->
+                                        <div class="text-right">
+                                            <div class="text-[10px] text-slate-400 font-medium uppercase tracking-wider">Item Total</div>
+                                            <div class="text-sm font-black text-sky-700" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + (item.quantity * item.unit_price).toLocaleString()"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            </template>
 
-                            <div x-show="cart.length === 0" class="py-12 text-center text-gray-400 space-y-2">
-                                <svg class="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
-                                <p class="text-sm font-medium">{{ __('Your cart is empty') }}</p>
-                                <p class="text-xs text-gray-400">{{ __('Select a medicine or search above to start adding items.') }}</p>
+                            <!-- Empty Cart Visual -->
+                            <div x-show="cart.length === 0" class="py-14 flex flex-col items-center justify-center text-center text-gray-400 space-y-2.5">
+                                <div class="w-14 h-14 rounded-2xl bg-sky-50 text-sky-500 flex items-center justify-center border border-sky-100">
+                                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/></svg>
+                                </div>
+                                <p class="text-sm font-bold text-slate-700">{{ __('Your cart is empty') }}</p>
+                                <p class="text-xs text-slate-400 max-w-[240px]">{{ __('Click any medicine on the left catalog to add to order.') }}</p>
                             </div>
+                        </div>
 
+                        <!-- Docked Checkout Area (Generously Spaced, Light Blue Actions) -->
+                        <div class="border-t border-slate-200 p-4 sm:p-5 bg-slate-50 shrink-0 space-y-3.5">
+                            
                             <!-- Customer Selection -->
-                            <div class="mt-4 pt-3 border-t border-gray-100">
-                                <label class="text-xs font-bold text-gray-600 block mb-1">{{ __('Customer') }}</label>
-                                <select x-model="customer_id" class="w-full text-xs border-gray-200 rounded-lg focus:ring-emerald-500 focus:border-emerald-500">
+                            <div>
+                                <div class="flex items-center justify-between mb-1.5">
+                                    <label class="text-[11px] font-extrabold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
+                                        <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                        <span>{{ __('Customer') }}</span>
+                                    </label>
+                                    <a href="{{ route('customers.create') }}" target="_blank" class="text-xs text-sky-600 hover:text-sky-700 font-bold">+ {{ __('Add Customer') }}</a>
+                                </div>
+                                <select x-model="customer_id" class="w-full text-xs font-semibold border-slate-200 rounded-xl focus:ring-sky-500 focus:border-sky-500 py-2 px-3 bg-white shadow-2xs">
                                     <option value="">{{ __('Walk-in Customer') }}</option>
                                     @foreach($customers as $cust)
                                         <option value="{{ $cust->id }}">{{ $cust->name }} ({{ $cust->phone ?? 'No Phone' }})</option>
@@ -247,66 +313,60 @@
                                 </select>
                             </div>
 
-                            <!-- Cart Summary Lines -->
-                            <div class="mt-4 pt-3 border-t border-gray-100 space-y-2 text-xs">
-                                <div class="flex justify-between text-gray-600 font-medium">
+                            <!-- Calculations Summary -->
+                            <div class="space-y-2 text-xs border-t border-slate-200 pt-3">
+                                <div class="flex justify-between text-slate-600">
                                     <span>{{ __('Subtotal') }}</span>
-                                    <span class="font-bold text-gray-800" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + subtotal.toLocaleString()"></span>
+                                    <span class="font-bold text-gray-900" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + subtotal.toLocaleString()"></span>
                                 </div>
-                                <div class="flex justify-between items-center text-gray-600">
+                                <div class="flex items-center justify-between text-slate-600">
                                     <span>{{ __('Discount') }}</span>
-                                    <div class="flex items-center gap-1">
-                                        <input type="number" x-model.number="discount" min="0" class="w-24 text-right py-1 px-2 border-gray-200 rounded text-xs focus:ring-emerald-500 focus:border-emerald-500" placeholder="0">
-                                        <span class="text-gray-400 font-semibold">{{ setting('currency_symbol', 'UGX') }}</span>
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="text-xs text-slate-400">{{ setting('currency_symbol', 'UGX') }}</span>
+                                        <input type="number" x-model="discount" min="0" :max="subtotal" class="w-24 text-right text-xs font-bold py-1 px-2 border-slate-200 rounded-lg focus:ring-sky-500 focus:border-sky-500">
                                     </div>
-                                </div>
-                                <div class="flex justify-between items-center text-gray-600">
-                                    <span>{{ __('Tax') }}</span>
-                                    <div class="flex items-center gap-1">
-                                        <input type="number" x-model.number="tax" min="0" class="w-24 text-right py-1 px-2 border-gray-200 rounded text-xs focus:ring-emerald-500 focus:border-emerald-500" placeholder="0">
-                                        <span class="text-gray-400 font-semibold">{{ setting('currency_symbol', 'UGX') }}</span>
-                                    </div>
-                                </div>
-
-                                <div class="flex justify-between items-center pt-3 border-t border-gray-200 text-lg font-bold text-emerald-600">
-                                    <span>{{ __('Total') }}</span>
-                                    <span x-text="'{{ setting('currency_symbol', 'UGX') }} ' + grandTotal.toLocaleString()"></span>
                                 </div>
                             </div>
 
-                            <!-- Payment Method Toggles -->
-                            <div class="mt-5 space-y-2">
-                                <label class="text-xs font-bold text-gray-600 block">{{ __('Payment Method') }}</label>
+                            <!-- Grand Total Banner (Light Blue Gradient Banner) -->
+                            <div class="banner-sky-total p-3.5 rounded-2xl flex items-center justify-between shadow-md">
+                                <span class="text-xs font-bold uppercase tracking-wider text-white">{{ __('Total Payable') }}</span>
+                                <span class="text-xl font-black tracking-tight text-white" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + grandTotal.toLocaleString()"></span>
+                            </div>
+
+                            <!-- Payment Method Select (Light Blue Styled Buttons) -->
+                            <div>
                                 <div class="grid grid-cols-3 gap-2">
-                                    <button type="button" @click="payment_method = 'cash'" :class="payment_method === 'cash' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 font-bold' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'" class="py-2.5 px-2 border rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
-                                        💵 {{ __('Cash') }}
+                                    <button type="button" @click="payment_method = 'cash'" :class="payment_method === 'cash' ? 'btn-sky-primary shadow-sm ring-2 ring-sky-300' : 'bg-white border-2 border-slate-200 text-slate-700 hover:bg-sky-50 hover:text-sky-800 hover:border-sky-300'" class="py-2.5 px-2 rounded-xl text-xs transition text-center flex items-center justify-center gap-1.5 font-bold shadow-2xs">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                                        <span>Cash</span>
                                     </button>
-                                    <button type="button" @click="payment_method = 'card'" :class="payment_method === 'card' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 font-bold' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'" class="py-2.5 px-2 border rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
-                                        💳 {{ __('Card') }}
+                                    <button type="button" @click="payment_method = 'card'" :class="payment_method === 'card' ? 'btn-sky-primary shadow-sm ring-2 ring-sky-300' : 'bg-white border-2 border-slate-200 text-slate-700 hover:bg-sky-50 hover:text-sky-800 hover:border-sky-300'" class="py-2.5 px-2 rounded-xl text-xs transition text-center flex items-center justify-center gap-1.5 font-bold shadow-2xs">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                        <span>Card</span>
                                     </button>
-                                    <button type="button" @click="payment_method = 'mobile_money'" :class="payment_method === 'mobile_money' ? 'bg-emerald-50 border-emerald-500 text-emerald-700 font-bold' : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-gray-100'" class="py-2.5 px-2 border rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
-                                        📱 {{ __('Mobile Money') }}
+                                    <button type="button" @click="payment_method = 'mobile_money'" :class="payment_method === 'mobile_money' ? 'btn-sky-primary shadow-sm ring-2 ring-sky-300' : 'bg-white border-2 border-slate-200 text-slate-700 hover:bg-sky-50 hover:text-sky-800 hover:border-sky-300'" class="py-2.5 px-2 rounded-xl text-xs transition text-center flex items-center justify-center gap-1.5 font-bold shadow-2xs">
+                                        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                        <span>M-Money</span>
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Complete Sale Action Button -->
-                            <div class="mt-6">
-                                <button type="submit" :disabled="cart.length === 0 || isSubmitting" class="w-full py-3.5 px-4 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl font-bold text-base shadow-md hover:shadow-lg transition flex items-center justify-center gap-2">
-                                    <template x-if="!isSubmitting">
-                                        <span class="flex items-center gap-2">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                                            {{ __('Complete Sale') }}
-                                        </span>
-                                    </template>
-                                    <template x-if="isSubmitting">
-                                        <span class="flex items-center gap-2">
-                                            <svg class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                                            {{ __('Processing......') }}
-                                        </span>
-                                    </template>
-                                </button>
-                            </div>
+                            <!-- Complete Sale Light Blue Primary Action Button -->
+                            <button type="submit" :disabled="cart.length === 0 || isSubmitting" :class="cart.length === 0 || isSubmitting ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'btn-sky-primary hover:opacity-95 active:scale-[0.99] shadow-lg hover:shadow-xl'" class="w-full py-3.5 px-5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center justify-center gap-2">
+                                <template x-if="isSubmitting">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                        <span>{{ __('Processing Sale...') }}</span>
+                                    </div>
+                                </template>
+                                <template x-if="!isSubmitting">
+                                    <div class="flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+                                        <span>{{ __('Complete Sale') }}</span>
+                                    </div>
+                                </template>
+                            </button>
 
                         </div>
 
@@ -315,49 +375,90 @@
                 </div>
             </form>
 
-        </div>
-
-        <!-- AJAX Success Modal Overlay (No Page Reload!) -->
-        <div x-show="completedSaleModal" class="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4" style="display: none;">
-            <div @click.outside="completedSaleModal = false" class="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-md w-full p-6 text-center space-y-5 animate-in fade-in zoom-in duration-200">
-                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
-                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
-                </div>
-                <div>
-                    <h3 class="font-extrabold text-xl text-gray-900">{{ __('Sale Completed Successfully!') }}</h3>
-                    <p class="text-xs text-gray-500 mt-1">{{ __('Transaction processed seamlessly without page reload.') }}</p>
-                </div>
-                
-                <div class="bg-slate-50 border border-gray-200 rounded-xl p-4 text-left space-y-2 text-xs">
-                    <div class="flex justify-between">
-                        <span class="text-gray-500 font-medium">{{ __('Invoice No') }}</span>
-                        <span class="font-bold text-gray-900" x-text="completedSaleData.invoice_no"></span>
+            <!-- Completed Sale Success Modal Overlay -->
+            <div x-show="completedSaleModal" x-transition.opacity class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4" style="display: none;">
+                <div class="bg-white rounded-3xl shadow-2xl max-w-xs w-full p-5 text-center space-y-3.5 border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+                    <div class="w-12 h-12 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto shadow-inner">
+                        <svg class="w-6 h-6 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                     </div>
-                    <div class="flex justify-between">
-                        <span class="text-gray-500 font-medium">{{ __('Total Amount') }}</span>
-                        <span class="font-extrabold text-emerald-600" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + completedSaleData.total.toLocaleString()"></span>
+                    <div>
+                        <h3 class="font-extrabold text-gray-900 text-base">{{ __('Sale Completed!') }}</h3>
+                        <p class="text-xs text-gray-500 mt-0.5" x-text="'Invoice: #' + completedSaleData.invoice_no"></p>
+                        <div class="mt-2 text-xl font-black text-sky-600" x-text="'{{ setting('currency_symbol', 'UGX') }} ' + parseFloat(completedSaleData.total).toLocaleString()"></div>
                     </div>
-                </div>
 
-                <div class="flex flex-col gap-2">
-                    <a :href="completedSaleData.invoice_url" target="_blank" class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
-                        🖨️ {{ __('Print Receipt / Invoice') }}
-                    </a>
-                    <button type="button" @click="completedSaleModal = false" class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-gray-700 rounded-xl text-xs font-bold transition">
-                        ➕ {{ __('Start New Sale') }}
-                    </button>
+                    <div class="flex flex-col gap-2 pt-1">
+                        <a :href="completedSaleData.invoice_url" target="_blank" class="btn-sky-primary w-full py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs">
+                            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            <span>{{ __('Print Receipt') }}</span>
+                        </a>
+                        <button type="button" @click="completedSaleModal = false" class="btn-sky-light w-full py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1">
+                            <svg class="w-4 h-4 shrink-0 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            <span>{{ __('Start New Sale') }}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
+        </div>
     </div>
 
+    <!-- Custom Styling & Visible Light Blue Custom Scrollbar -->
+    <style>
+        .btn-sky-primary {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+        }
+        .btn-sky-primary:hover {
+            background-color: #0369a1 !important;
+        }
+        .btn-sky-light {
+            background-color: #e0f2fe !important;
+            color: #0369a1 !important;
+            border: 1px solid #7dd3fc !important;
+        }
+        .btn-sky-light:hover {
+            background-color: #0284c7 !important;
+            color: #ffffff !important;
+        }
+        .banner-sky-total {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%) !important;
+            color: #ffffff !important;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 8px;
+            border: 2px solid #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #0284c7;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+
+    <!-- Alpine POS Logic Script -->
     <script>
         function posForm() {
             return {
                 searchQuery: '',
                 searchResults: [],
                 popularMedicines: @json($popularMedicines ?? []),
+                selectedCategory: '',
+                viewMode: 'grid', // 'grid' or 'list'
                 cart: [],
                 customer_id: '',
                 payment_method: 'cash',
@@ -396,19 +497,24 @@
                 },
 
                 get filteredPopularMedicines() {
-                    if (!this.searchQuery.trim()) {
-                        return this.popularMedicines;
+                    let list = this.popularMedicines;
+                    if (this.selectedCategory) {
+                        list = list.filter(m => String(m.category_id) === String(this.selectedCategory));
                     }
-                    const q = this.searchQuery.toLowerCase().trim();
-                    return this.popularMedicines.filter(m => 
-                        m.name.toLowerCase().includes(q) || 
-                        (m.generic_name && m.generic_name.toLowerCase().includes(q))
-                    );
+                    if (this.searchQuery.trim()) {
+                        const q = this.searchQuery.toLowerCase().trim();
+                        list = list.filter(m => 
+                            m.name.toLowerCase().includes(q) || 
+                            (m.generic_name && m.generic_name.toLowerCase().includes(q)) ||
+                            (m.category_name && m.category_name.toLowerCase().includes(q))
+                        );
+                    }
+                    return list;
                 },
 
                 addToCart(med) {
                     if (med.stock_qty <= 0) {
-                        alert('⚠️ Cannot add "' + med.name + '": Product is Out of Stock!');
+                        alert('Warning: Cannot add "' + med.name + '": Product is Out of Stock!');
                         return;
                     }
                     const units = med.units && med.units.length ? med.units : [{
@@ -427,7 +533,7 @@
                         if (reqBaseQty <= med.stock_qty) {
                             currentItem.quantity++;
                         } else {
-                            alert('⚠️ Cannot add more than available stock (' + med.stock_qty + ')!');
+                            alert('Warning: Cannot add more than available stock (' + med.stock_qty + ')!');
                         }
                     } else {
                         this.cart.push({
@@ -466,7 +572,7 @@
                     if (reqBaseQty <= item.stock_qty) {
                         item.quantity++;
                     } else {
-                        alert('⚠️ Cannot add more than available stock (' + item.stock_qty + ' base units)!');
+                        alert('Warning: Cannot add more than available stock (' + item.stock_qty + ' base units)!');
                     }
                 },
 
@@ -507,7 +613,7 @@
                     for (let item of this.cart) {
                         const totalBaseQtyNeeded = Math.ceil(item.quantity * item.conversion_factor);
                         if (totalBaseQtyNeeded > item.stock_qty) {
-                            alert('⚠️ Insufficient stock for ' + item.name + '. Required ' + totalBaseQtyNeeded + ' base units, but only ' + item.stock_qty + ' available.');
+                            alert('Warning: Insufficient stock for ' + item.name + '. Required ' + totalBaseQtyNeeded + ' base units, but only ' + item.stock_qty + ' available.');
                             return;
                         }
                     }

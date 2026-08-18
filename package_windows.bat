@@ -10,7 +10,7 @@ call php artisan route:clear
 call php artisan view:clear
 
 echo 2. Building front-end assets...
-call npm run build
+call npm.cmd run build
 
 echo 3. Packaging client distribution ZIP...
 call php vendor-tools/package_clean.php
@@ -34,5 +34,6 @@ echo Standalone ZIP package generated in dist\ directory.
 echo ========================================================
 echo   PACKAGING COMPLETE!
 echo   Output files located in dist\ directory:
-echo   - PharmCare_Standalone_v2.1.0_Client.zip
+echo   - PharmCare_Setup_v2.2.0.exe (Windows Installer)
+echo   - PharmCare_Standalone_v2.2.0_Client.zip (Portable ZIP)
 echo ========================================================

@@ -1,6 +1,6 @@
 <?php
 
-$zipFile = __DIR__ . '/../dist/PharmCare_Standalone_v2.1.0_Client.zip';
+$zipFile = __DIR__ . '/../dist/PharmCare_Standalone_v2.2.0_Client.zip';
 $sourceDir = realpath(__DIR__ . '/..');
 
 if (!file_exists(dirname($zipFile))) {

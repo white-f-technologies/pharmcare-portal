@@ -1,7 +1,7 @@
 ; Inno Setup Compiler Script for PharmCare Standalone Windows Application
 ; Build: Clean Install with SQLite (no dev data shipped)
 #define MyAppName "PharmCare Offline Pharmacy"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.2.0"
 #define MyAppPublisher "PharmCare Software Solutions"
 #define MyAppURL "https://pharmcare.test"
 #define MyAppExeName "start_pharmcare.bat"
@@ -16,7 +16,7 @@ DefaultDirName=C:\PharmCare
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
 OutputDir=dist
-OutputBaseFilename=PharmCare_Setup_v2.1.0
+OutputBaseFilename=PharmCare_Setup_v2.2.0
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern

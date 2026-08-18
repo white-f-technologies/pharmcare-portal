@@ -16,7 +16,7 @@ class CheckUpdate extends Command
 
     public function handle(): int
     {
-        $currentVersion = config('license.version', '2.1.0');
+        $currentVersion = config('license.version', '2.2.0');
         $portalUrl = config('license.portal_url');
 
         $this->info("Current PharmCare Version: {$currentVersion}");

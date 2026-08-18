@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center font-bold shadow-md">
-                    🔑
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
                 </div>
                 <div>
                     <h2 class="font-extrabold text-xl text-gray-900 leading-tight">{{ __('Offline License Key Generator') }}</h2>
@@ -46,7 +46,7 @@
             @if(!$hasPrivateKey)
                 <div class="p-4 bg-amber-50 border-l-4 border-amber-500 text-amber-900 rounded-xl shadow-sm space-y-1">
                     <div class="flex items-center gap-2">
-                        <span class="text-lg">🔒</span>
+                        <svg class="w-5 h-5 text-amber-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                         <p class="font-extrabold text-sm">{{ __('Client Installation Security Notice: Key Generation Disabled') }}</p>
                     </div>
                     <p class="text-xs text-amber-800 leading-relaxed">
@@ -61,7 +61,8 @@
                 <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 space-y-6">
                     <div class="border-b border-gray-100 pb-4">
                         <h3 class="font-extrabold text-gray-900 text-lg flex items-center gap-2">
-                            <span>⚡ Generate Signed License Key</span>
+                            <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <span>Generate Signed License Key</span>
                         </h3>
                         <p class="text-xs text-gray-500 mt-1">{{ __('Fill in client details to issue a digitally signed, tamper-proof license file.') }}</p>
                     </div>
@@ -105,7 +106,7 @@
                                             <span class="text-[11px] text-gray-500">{{ __('Basic Features Only') }}</span>
                                         </div>
                                     </div>
-                                    <span class="text-gray-400 text-lg">📦</span>
+                                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                                 </label>
                             </div>
                         </div>
@@ -147,15 +148,18 @@
                         <!-- Submit Action Buttons -->
                         <div class="pt-4 border-t border-gray-100 flex flex-wrap items-center gap-3">
                             <button type="submit" @click="action = 'download'" class="flex-1 py-3 px-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-2">
-                                📥 {{ __('Generate & Download .JSON') }}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                <span>{{ __('Generate & Download .JSON') }}</span>
                             </button>
 
                             <button type="submit" @click="action = 'activate_now'" class="flex-1 py-3 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-2">
-                                ⚡ {{ __('Generate & Activate Now') }}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                <span>{{ __('Generate & Activate Now') }}</span>
                             </button>
 
                             <button type="submit" @click="action = 'json_view'" class="py-3 px-4 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
-                                📋 {{ __('Generate Payload') }}
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>{{ __('Generate Payload') }}</span>
                             </button>
                         </div>
                     </form>
@@ -168,11 +172,13 @@
                     <div class="bg-slate-900 text-slate-100 rounded-2xl shadow-md p-6 space-y-4 border border-slate-800">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                             <h4 class="font-extrabold text-sm text-emerald-400 flex items-center gap-2">
-                                <span>📄 RSA Signed License Payload</span>
+                                <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                <span>RSA Signed License Payload</span>
                             </h4>
                             @if(session('generated_payload'))
-                                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('payload-box').innerText); alert('License Payload copied to clipboard!');" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition">
-                                    📋 Copy JSON
+                                <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('payload-box').innerText); alert('License Payload copied to clipboard!');" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"/></svg>
+                                    <span>Copy JSON</span>
                                 </button>
                             @endif
                         </div>
@@ -187,8 +193,8 @@
                             </div>
                         @else
                             <div class="p-8 text-center text-xs text-slate-500 space-y-2">
-                                <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center mx-auto text-xl">
-                                    🔐
+                                <div class="w-12 h-12 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center mx-auto">
+                                    <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
                                 </div>
                                 <p>{{ __('Click "Generate Payload" or "Generate & Download" to produce a cryptographically signed license JSON.') }}</p>
                             </div>
@@ -198,7 +204,10 @@
                     <!-- RSA Key Information Card -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-5 space-y-3">
                         <h4 class="font-bold text-xs uppercase text-gray-700 tracking-wider flex items-center justify-between">
-                            <span>🔑 System Verification Key</span>
+                            <span class="flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                <span>System Verification Key</span>
+                            </span>
                             <span class="text-[10px] text-emerald-700 font-extrabold bg-emerald-100 px-2 py-0.5 rounded-full">RSA 2048-BIT</span>
                         </h4>
                         <p class="text-xs text-gray-500">{{ __('Below is the active RSA Public Key used by this installation to verify offline signatures:') }}</p>

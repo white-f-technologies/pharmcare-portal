@@ -66,6 +66,23 @@ class SaleReturnController extends Controller
 
     public function store(Request $request)
     {
+        // Filter out items with 0 or empty quantity before validation
+        $rawItems = $request->input('items', []);
+        $activeItems = [];
+        if (is_array($rawItems)) {
+            foreach ($rawItems as $item) {
+                if (isset($item['unit_quantity']) && (float)$item['unit_quantity'] > 0) {
+                    $activeItems[] = $item;
+                }
+            }
+        }
+
+        if (empty($activeItems)) {
+            return back()->withErrors(['items' => 'Please enter a return quantity greater than 0 for at least one item.'])->withInput();
+        }
+
+        $request->merge(['items' => $activeItems]);
+
         $validated = $request->validate([
             'sale_id' => 'required|exists:sales,id',
             'items' => 'required|array|min:1',
@@ -103,8 +120,8 @@ class SaleReturnController extends Controller
                 $batch->increment('quantity', $requestedBaseQty);
                 $qtyAfter = (int) $batch->quantity;
 
-                $unitPrice = (float) $saleItem->unit_price;
-                $refundAmount = round($unitQty * $unitPrice, 2);
+                $baseUnitPrice = $saleItem->quantity > 0 ? ((float)$saleItem->total / (float)$saleItem->quantity) : (float)$saleItem->unit_price;
+                $refundAmount = round($requestedBaseQty * $baseUnitPrice, 2);
 
                 $saleReturn = SaleReturn::create([
                     'sale_id' => $sale->id,

@@ -102,12 +102,16 @@
     <script>
         function prescriptionForm() {
             return {
-                items: [],
+                items: @json(old('items', [['medicine_id' => '', 'dosage' => '', 'duration' => '']])),
                 addItem() {
                     this.items.push({ medicine_id: '', dosage: '', duration: '' });
                 },
                 removeItem(index) {
-                    this.items.splice(index, 1);
+                    if (this.items.length > 1) {
+                        this.items.splice(index, 1);
+                    } else {
+                        this.items = [{ medicine_id: '', dosage: '', duration: '' }];
+                    }
                 }
             }
         }

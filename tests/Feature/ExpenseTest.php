@@ -64,7 +64,7 @@ class ExpenseTest extends TestCase
     {
         $admin = User::where('role', 'admin')->first();
         $category = ExpenseCategory::first();
-        $batch = \App\Models\Batch::first();
+        $batch = \App\Models\Batch::where('batch_number', 'BAT-001')->first() ?? \App\Models\Batch::first();
 
         // Create a sale with 50,000 profit today
         $sale = \App\Models\Sale::create([

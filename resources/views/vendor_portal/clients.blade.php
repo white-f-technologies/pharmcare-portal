@@ -91,8 +91,9 @@
                                     <td class="py-3.5 px-6 text-gray-600">{{ $c->location ?? '—' }}</td>
                                     <td class="py-3.5 px-6"><span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800">{{ $c->status }}</span></td>
                                     <td class="py-3.5 px-6 text-right">
-                                        <a href="{{ route('vendor.license.generator') }}?client={{ $c->client_id }}" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px]">
-                                            🔑 Issue License
+                                        <a href="{{ route('vendor.license.generator') }}?client={{ $c->client_id }}" class="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-bold text-[11px] inline-flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                                            <span>Issue License</span>
                                         </a>
                                     </td>
                                 </tr>

@@ -43,7 +43,7 @@ class PortalApiController extends Controller
             [
                 'license_key'        => $license->license_key,
                 'client_id'          => $license->business_id,
-                'app_version'        => $request->header('X-App-Version', '2.1.0'),
+                'app_version'        => $request->header('X-App-Version', '2.2.0'),
                 'hostname'           => $request->input('hostname'),
                 'os_info'            => $request->input('os'),
                 'first_activated_at' => now(),
@@ -94,7 +94,7 @@ class PortalApiController extends Controller
         // Update installation heartbeat
         PortalInstallation::where('installation_id', $request->installation_id)->update([
             'last_verified_at' => now(),
-            'app_version'      => $request->header('X-App-Version', '2.1.0'),
+            'app_version'      => $request->header('X-App-Version', '2.2.0'),
         ]);
 
         $status = LicenseService::getLicenseStatus($license);
@@ -120,7 +120,7 @@ class PortalApiController extends Controller
 
         if (!$latest) {
             return response()->json([
-                'version'      => config('license.version', '2.1.0'),
+                'version'      => config('license.version', '2.2.0'),
                 'release_date' => date('Y-m-d'),
                 'download_url' => '',
                 'notes'        => 'Up to date.',

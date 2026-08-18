@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Batch;
+use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Medicine;
 use App\Models\Sale;
@@ -22,8 +23,13 @@ class SaleController extends Controller
     public function create()
     {
         $customers = Customer::where('is_active', true)->get();
+        $categories = Category::withCount(['medicines' => function ($q) {
+            $q->where('is_active', true)->whereHas('batches', function ($bq) {
+                $bq->where('quantity', '>', 0)->where('is_active', true);
+            });
+        }])->orderBy('name')->get();
         $popularMedicines = Medicine::where('is_active', true)
-            ->with(['units', 'batches' => function ($q) {
+            ->with(['category', 'units', 'batches' => function ($q) {
                 $q->where('quantity', '>', 0)
                   ->where('is_active', true)
                   ->whereDate('expiry_date', '>', now()->toDateString())
@@ -57,6 +63,8 @@ class SaleController extends Controller
 
                 return [
                     'medicine_id' => $med->id,
+                    'category_id' => $med->category_id,
+                    'category_name' => $med->category?->name ?? 'General',
                     'batch_id' => $batch->id,
                     'batch_number' => $batch->batch_number,
                     'name' => $med->name,
@@ -70,7 +78,7 @@ class SaleController extends Controller
             })
             ->values();
 
-        return view('sales.create', compact('customers', 'popularMedicines'));
+        return view('sales.create', compact('customers', 'categories', 'popularMedicines'));
     }
 
     public function store(Request $request)

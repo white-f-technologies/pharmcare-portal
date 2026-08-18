@@ -183,7 +183,10 @@
                 calculateLineRefund(item) {
                     const qty = parseFloat(item.return_qty) || 0;
                     if (qty <= 0 || this.isExceeded(item)) return 0;
-                    return qty * item.unit_price;
+                    const factor = this.getItemConversionFactor(item);
+                    const requestedBaseQty = Math.ceil(qty * factor);
+                    const baseUnitPrice = item.sold_base_quantity > 0 ? (item.sold_unit_quantity * item.unit_price) / item.sold_base_quantity : item.unit_price;
+                    return requestedBaseQty * baseUnitPrice;
                 },
 
                 get grandRefundTotal() {

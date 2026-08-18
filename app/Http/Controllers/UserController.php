@@ -101,10 +101,23 @@ class UserController extends Controller
 
         $validated['is_active'] = $request->has('is_active');
 
+        // Prevent self-lockout / self-deactivation
+        if (auth()->id() === $user->id) {
+            if (!$validated['is_active']) {
+                return redirect()->route('users.index')
+                    ->with('error', 'You cannot deactivate your own active admin account.');
+            }
+            if ($user->role === 'admin' && $validated['role'] !== 'admin') {
+                $otherAdmins = User::where('role', 'admin')->where('is_active', true)->where('id', '!=', $user->id)->count();
+                if ($otherAdmins === 0) {
+                    return redirect()->route('users.index')
+                        ->with('error', 'You cannot remove your admin role because you are the only active administrator.');
+                }
+            }
+        }
+
         // Update password only if provided
-        if ($request->filled('password')) {
-            $user->password = $validated['password'];
-        } else {
+        if (!$request->filled('password')) {
             unset($validated['password']);
         }
 

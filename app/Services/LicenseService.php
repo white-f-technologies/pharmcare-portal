@@ -249,7 +249,7 @@ class LicenseService
             $localPayload = $payload;
             $localPayload['_activated_at']      = date('Y-m-d H:i:s');
             $localPayload['_installation_id']   = $installId;
-            $localPayload['_app_version']        = config('license.version', '2.1.0');
+            $localPayload['_app_version']        = config('license.version', '2.2.0');
             Storage::put('license.json', json_encode($localPayload, JSON_PRETTY_PRINT));
 
             // Record verification timestamp
@@ -413,7 +413,7 @@ class LicenseService
             'grace_days'       => $graceDays,
             'is_perpetual'     => $license && !$license->expiry_date,
             'installation_id'  => InstallationService::getId(),
-            'app_version'      => config('license.version', '2.1.0'),
+            'app_version'      => config('license.version', '2.2.0'),
             'show_warning'     => false,
             'warning_message'  => null,
         ];
@@ -494,7 +494,7 @@ class LicenseService
             'type'       => $type,
             'timestamp'  => date('Y-m-d H:i:s'),
             'unix'       => time(),
-            'app_version' => config('license.version', '2.1.0'),
+            'app_version' => config('license.version', '2.2.0'),
         ];
 
         $verificationPath = app_data_path('license_verification.json');

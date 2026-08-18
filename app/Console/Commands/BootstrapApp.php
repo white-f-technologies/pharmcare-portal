@@ -14,7 +14,15 @@ class BootstrapApp extends Command
     public function handle(SetupService $setup): int
     {
         if ($setup->isInstalled()) {
-            $this->info('Application already bootstrapped. Skipping setup.');
+            $this->info('Application already installed. Executing seamless upgrade checks...');
+            try {
+                $setup->ensureDataDirectories();
+                $setup->runMigrations();
+                $setup->clearCache();
+                $this->info('Seamless upgrade check completed successfully: Database migrated & cache cleared.');
+            } catch (\Throwable $e) {
+                $this->error('Upgrade bootstrap warning: ' . $e->getMessage());
+            }
             return self::SUCCESS;
         }
 

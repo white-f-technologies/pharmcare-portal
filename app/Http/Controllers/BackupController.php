@@ -253,17 +253,31 @@ class BackupController extends Controller
                 }
                 $this->executeRestoreSql($sqlContent);
 
-                // Restore media files
+                // Restore media files securely (preventing Zip Slip)
                 $publicStorage = storage_path('app/public');
+                $realPublic = realpath($publicStorage);
+                if (!$realPublic && !file_exists($publicStorage)) {
+                    mkdir($publicStorage, 0755, true);
+                    $realPublic = realpath($publicStorage);
+                }
+
                 for ($i = 0; $i < $zip->numFiles; $i++) {
-                    $filename = $zip->getNameIndex($i);
-                    if (str_starts_with($filename, 'media/')) {
-                        $relativeMediaName = substr($filename, 6);
-                        if ($relativeMediaName) {
-                            $targetPath = $publicStorage . '/' . $relativeMediaName;
-                            if (!file_exists(dirname($targetPath))) {
-                                mkdir(dirname($targetPath), 0755, true);
-                            }
+                    $entryName = $zip->getNameIndex($i);
+                    if (str_starts_with($entryName, 'media/')) {
+                        $relativeMediaName = ltrim(substr($entryName, 6), '/\\');
+                        // Prevent directory traversal sequences
+                        if (empty($relativeMediaName) || str_contains($relativeMediaName, '..') || str_contains($relativeMediaName, "\0")) {
+                            continue;
+                        }
+
+                        $targetPath = $publicStorage . DIRECTORY_SEPARATOR . str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativeMediaName);
+                        $targetDir = dirname($targetPath);
+                        if (!file_exists($targetDir)) {
+                            mkdir($targetDir, 0755, true);
+                        }
+
+                        $realTargetDir = realpath($targetDir);
+                        if ($realPublic && $realTargetDir && (str_starts_with($realTargetDir, $realPublic . DIRECTORY_SEPARATOR) || $realTargetDir === $realPublic)) {
                             file_put_contents($targetPath, $zip->getFromIndex($i));
                         }
                     }
@@ -338,7 +352,7 @@ class BackupController extends Controller
 
         $output = "-- PharmCare SQLite Database Backup\n";
         $output .= "-- Generated: " . date('Y-m-d H:i:s') . "\n";
-        $output .= "-- App Version: " . config('license.version', '2.1.0') . "\n\n";
+        $output .= "-- App Version: " . config('license.version', '2.2.0') . "\n\n";
         $output .= "PRAGMA foreign_keys = OFF;\n\n";
 
         foreach ($tables as $tableObj) {

@@ -75,8 +75,8 @@
                                 'backup' => ['name' => 'ZIP Backup & Restore', 'desc' => 'Offline database & image backups'],
                                 'prescriptions' => ['name' => 'Prescription Management', 'desc' => 'Doctor & patient prescriptions'],
                                 'medicine_images' => ['name' => 'Medicine Images', 'desc' => 'Photo uploads for medicine catalog'],
-                                'advanced_reports' => ['name' => 'Sales Report CSV Export', 'desc' => 'Download sales data as spreadsheet', 'prem' => true],
-                                'advanced_inventory' => ['name' => 'Inventory Report CSV Export', 'desc' => 'Download stock valuation as spreadsheet', 'prem' => true],
+                                'advanced_reports' => ['name' => 'Sales Report Excel Export', 'desc' => 'Download sales data as styled Excel spreadsheet', 'prem' => true],
+                                'advanced_inventory' => ['name' => 'Inventory Report Excel Export', 'desc' => 'Download stock valuation as styled Excel spreadsheet', 'prem' => true],
                                 'stock_ledger' => ['name' => 'Stock Ledger Audit Trail', 'desc' => 'Full item-by-item stock movement log', 'prem' => true],
                             ];
                         @endphp

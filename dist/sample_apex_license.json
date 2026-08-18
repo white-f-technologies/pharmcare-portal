@@ -1,0 +1,29 @@
+{
+    "license_id": "PC-UG-322395",
+    "business_name": "Apex Pharmacy",
+    "business_id": "BUS-1414",
+    "edition": "PREMIUM",
+    "activated_modules": [
+        "unit_packaging",
+        "stock_ledger",
+        "medicine_images",
+        "advanced_inventory",
+        "fefo",
+        "stock_ageing",
+        "slow_moving",
+        "advanced_purchasing",
+        "supplier_analysis",
+        "advanced_credit",
+        "prescription",
+        "cashier_sessions",
+        "advanced_reports",
+        "approval_workflows",
+        "advanced_backup"
+    ],
+    "issue_date": "2026-08-13",
+    "expiry_date": null,
+    "license_type": "PERPETUAL",
+    "installation_limit": 1,
+    "status": "ACTIVE",
+    "signature": "censXBpYgt1r82t7dyxSztVLvHJHFLc+GHUxzSybQeVwItIUszaC+5DnrpcgaxbOm0+bjS9Cav+zP9Wi+1Q1KdzP7JPXDOfZbQHQ1TyxrV0iNGj+OW00CE1UqLWyY2K3e8X+SE6gPU/FSHutJzz/4ydVQXVCegSvXIurZFHSXNcTYhMHsFxoZoY89Di6gn+0dMDL00EMEhTD5jhBTEqX1yMcKKjInk2xJtqqI53wCuhu8rSmIijRCN002HHlSlQiA+VwdGqGSe3HhDcq+MmRn2DV03cTI9PkLXWjpZuOhQ62PiupyfwwEPeExjFTDlmDJaukGXZxUbkFpy5YZumCOQ=="
+}

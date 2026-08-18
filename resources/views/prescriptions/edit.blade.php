@@ -103,16 +103,20 @@
     <script>
         function prescriptionForm() {
             return {
-                items: @js($prescription->items->map(fn($item) => [
+                items: @json(old('items', $prescription->items->map(fn($item) => [
                     'medicine_id' => $item->medicine_id,
                     'dosage' => $item->dosage,
                     'duration' => $item->duration,
-                ])->toArray()),
+                ])->toArray())),
                 addItem() {
                     this.items.push({ medicine_id: '', dosage: '', duration: '' });
                 },
                 removeItem(index) {
-                    this.items.splice(index, 1);
+                    if (this.items.length > 1) {
+                        this.items.splice(index, 1);
+                    } else {
+                        this.items = [{ medicine_id: '', dosage: '', duration: '' }];
+                    }
                 }
             }
         }

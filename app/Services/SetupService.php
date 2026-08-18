@@ -40,9 +40,10 @@ class SetupService
         $this->runMigrations();
         $this->seedSystemData();
         $this->createBootstrapAdmin();
+        $this->clearCache();
     }
 
-    protected function ensureDataDirectories(): void
+    public function ensureDataDirectories(): void
     {
         $dirs = [
             $this->dataDir,
@@ -134,49 +135,51 @@ class SetupService
 
         $settings = [
             ['key' => 'app_name', 'value' => 'PharmCare'],
-            ['key' => 'currency_symbol', 'value' => '$'],
-            ['key' => 'system_email', 'value' => ''],
-            ['key' => 'system_phone', 'value' => ''],
-            ['key' => 'system_address', 'value' => ''],
+            ['key' => 'system_name', 'value' => 'PharmCare Pharmacy'],
+            ['key' => 'currency_symbol', 'value' => 'UGX'],
+            ['key' => 'currency', 'value' => 'UGX'],
+            ['key' => 'system_email', 'value' => 'info@pharmcare.ug'],
+            ['key' => 'system_phone', 'value' => '+256 700 000 000'],
+            ['key' => 'system_address', 'value' => 'Kampala, Uganda'],
         ];
 
         foreach ($settings as $s) {
             Setting::set($s['key'], $s['value']);
         }
 
-        $categories = [
-            ['name' => 'Painkillers & Analgesics', 'slug' => 'painkillers', 'description' => 'Medications for pain relief and fever reduction'],
-            ['name' => 'Antibiotics & Antimicrobials', 'slug' => 'antibiotics', 'description' => 'Medications for bacterial infections'],
-            ['name' => 'Vitamins & Minerals', 'slug' => 'vitamins-supplements', 'description' => 'Nutritional supplements and immune boosters'],
-            ['name' => 'Cough, Cold & Flu', 'slug' => 'cough-cold', 'description' => 'Decongestants and cough syrups'],
-            ['name' => 'Allergy & Antihistamines', 'slug' => 'allergy', 'description' => 'Antihistamines and allergy relief'],
-            ['name' => 'Diabetes & Endocrine', 'slug' => 'diabetes', 'description' => 'Blood sugar management medications'],
-        ];
+        // Seed complete pharmaceutical categories
+        (new \Database\Seeders\CategorySeeder())->run();
 
-        foreach ($categories as $cat) {
-            \App\Models\Category::create($cat);
-        }
+        // Seed default wholesale suppliers
+        (new \Database\Seeders\SupplierSeeder())->run();
+
+        // Seed popular Ugandan medicines, packaging units (box, strip, etc.), and active batches
+        (new \Database\Seeders\MedicineSeeder())->run();
 
         $expenseCategories = [
-            ['name' => 'Rent', 'description' => 'Premises monthly rent'],
-            ['name' => 'Utilities', 'description' => 'Utility bills (water, electricity)'],
+            ['name' => 'Rent', 'description' => 'Premises monthly pharmacy rent'],
+            ['name' => 'Utilities', 'description' => 'Utility bills (water, electricity, internet)'],
             ['name' => 'Salaries & Wages', 'description' => 'Staff salaries and allowances'],
             ['name' => 'Transport & Logistics', 'description' => 'Delivery and transport costs'],
-            ['name' => 'Maintenance & Repairs', 'description' => 'Equipment and premises repairs'],
-            ['name' => 'Other Expenses', 'description' => 'Miscellaneous operational expenses'],
+            ['name' => 'NDA & Statutory Licensing', 'description' => 'National Drug Authority and local council trading licenses'],
+            ['name' => 'Medical Waste & Cleaning', 'description' => 'Clinical waste management and sanitation supplies'],
+            ['name' => 'Maintenance & Repairs', 'description' => 'Equipment, cold-chain refrigeration, and premises repairs'],
+            ['name' => 'Other Expenses', 'description' => 'Miscellaneous operational expenses and packaging'],
         ];
 
         foreach ($expenseCategories as $ec) {
-            \App\Models\ExpenseCategory::create($ec);
+            \App\Models\ExpenseCategory::firstOrCreate(['name' => $ec['name']], $ec);
         }
 
-        \App\Models\Customer::create([
-            'name' => 'Walk-in Customer',
-            'email' => null,
-            'phone' => '',
-            'address' => '',
-            'is_active' => true,
-        ]);
+        \App\Models\Customer::firstOrCreate(
+            ['name' => 'Walk-in Customer'],
+            [
+                'email' => null,
+                'phone' => '+256 700 000 000',
+                'address' => 'Kampala, Uganda',
+                'is_active' => true,
+            ]
+        );
     }
 
     protected function createBootstrapAdmin(): void
@@ -206,5 +209,17 @@ class SetupService
             'email' => 'admin@pharmcare.local',
             'password' => 'admin123',
         ];
+    }
+
+    public function clearCache(): void
+    {
+        try {
+            Artisan::call('config:clear');
+            Artisan::call('route:clear');
+            Artisan::call('view:clear');
+            Artisan::call('cache:clear');
+        } catch (\Throwable $e) {
+            // Ignore cache clear errors during bootstrap if warming up
+        }
     }
 }

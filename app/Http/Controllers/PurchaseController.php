@@ -22,18 +22,30 @@ class PurchaseController extends Controller
     public function create()
     {
         $suppliers = Supplier::where('is_active', true)->pluck('name', 'id');
-        $medicines = Medicine::with('units')->where('is_active', true)->get()->map(function ($med) {
+        $medicines = Medicine::with(['units', 'batches' => function ($q) {
+            $q->where('is_active', true)->orderBy('created_at', 'desc');
+        }])->where('is_active', true)->get()->map(function ($med) {
             $units = [];
             $baseUnit = $med->base_unit ?? 'Tablet';
+            $basePurchase = (float) ($med->purchase_price ?? 0);
+            $baseSelling = (float) ($med->selling_price ?? 0);
+
             $units[] = [
                 'unit_name' => $baseUnit,
                 'conversion_factor' => 1.0,
+                'purchase_price' => $basePurchase,
+                'selling_price' => $baseSelling,
             ];
             foreach ($med->units as $u) {
                 if ($u->unit_name !== $baseUnit) {
+                    $factor = (float) $u->conversion_factor;
+                    $unitSell = $u->selling_price !== null ? (float) $u->selling_price : round($baseSelling * $factor, 2);
+                    $unitCost = round($basePurchase * $factor, 2);
                     $units[] = [
                         'unit_name' => $u->unit_name,
-                        'conversion_factor' => (float) $u->conversion_factor,
+                        'conversion_factor' => $factor,
+                        'purchase_price' => $unitCost,
+                        'selling_price' => $unitSell,
                     ];
                 }
             }
@@ -41,6 +53,8 @@ class PurchaseController extends Controller
                 'id' => $med->id,
                 'name' => $med->name,
                 'base_unit' => $baseUnit,
+                'purchase_price' => $basePurchase,
+                'selling_price' => $baseSelling,
                 'units' => $units,
             ];
         });

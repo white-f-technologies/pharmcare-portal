@@ -32,7 +32,27 @@ class MedicineController extends Controller
     public function create()
     {
         $categories = Category::pluck('name', 'id');
-        return view('medicines.create', compact('categories'));
+        $categoriesSlugMap = Category::pluck('id', 'slug');
+        $medicineTemplates = config('medicine_presets.templates', []);
+        $commonManufacturers = [
+            'Abacus Pharma',
+            'Cipla Quality Chemical',
+            'Cosmos Pharmaceuticals',
+            'Dawa Limited',
+            'GlaxoSmithKline (GSK)',
+            'Novartis',
+            'Pfizer',
+            'Macleods Pharma',
+            'Medreich Pharma',
+            'Sun Pharma',
+            'AstraPharma',
+            'Bayer',
+            'Universal Pharmacy',
+            'National Medical Stores',
+            'Joint Medical Store',
+        ];
+
+        return view('medicines.create', compact('categories', 'categoriesSlugMap', 'medicineTemplates', 'commonManufacturers'));
     }
 
     public function store(Request $request)
@@ -147,8 +167,30 @@ class MedicineController extends Controller
         $latestBatch = $medicine->batches()->latest()->first();
         $sellingPrice = $latestBatch ? $latestBatch->selling_price : 0;
         $purchasePrice = $latestBatch ? $latestBatch->purchase_price : 0;
+        $units = $medicine->units->map(fn($u) => [
+            'unit_name' => $u->unit_name,
+            'conversion_factor' => (float) $u->conversion_factor,
+            'selling_price' => $u->selling_price ? (float) $u->selling_price : '',
+        ]);
+        $commonManufacturers = [
+            'Abacus Pharma',
+            'Cipla Quality Chemical',
+            'Cosmos Pharmaceuticals',
+            'Dawa Limited',
+            'GlaxoSmithKline (GSK)',
+            'Novartis',
+            'Pfizer',
+            'Macleods Pharma',
+            'Medreich Pharma',
+            'Sun Pharma',
+            'AstraPharma',
+            'Bayer',
+            'Universal Pharmacy',
+            'National Medical Stores',
+            'Joint Medical Store',
+        ];
 
-        return view('medicines.edit', compact('medicine', 'categories', 'sellingPrice', 'purchasePrice'));
+        return view('medicines.edit', compact('medicine', 'categories', 'sellingPrice', 'purchasePrice', 'commonManufacturers', 'units'));
     }
 
     public function update(Request $request, Medicine $medicine)

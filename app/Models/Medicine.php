@@ -20,7 +20,7 @@ class Medicine extends Model
         'is_active',
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'purchase_price', 'selling_price'];
 
     protected function casts(): array
     {
@@ -37,6 +37,24 @@ class Medicine extends Model
             return asset('media/' . $this->image);
         }
         return null;
+    }
+
+    public function getPurchasePriceAttribute(): float
+    {
+        $batch = $this->relationLoaded('batches')
+            ? $this->batches->sortByDesc('id')->first()
+            : $this->batches()->latest()->first();
+
+        return $batch ? (float) $batch->purchase_price : 0.0;
+    }
+
+    public function getSellingPriceAttribute(): float
+    {
+        $batch = $this->relationLoaded('batches')
+            ? $this->batches->sortByDesc('id')->first()
+            : $this->batches()->latest()->first();
+
+        return $batch ? (float) $batch->selling_price : 0.0;
     }
 
     public function category()

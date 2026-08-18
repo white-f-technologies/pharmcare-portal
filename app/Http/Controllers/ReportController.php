@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Batch;
 use App\Models\Medicine;
 use App\Models\Sale;
+use App\Models\SaleReturn;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -15,62 +16,53 @@ class ReportController extends Controller
         $from = $request->get('from', Carbon::today()->startOfMonth()->format('Y-m-d'));
         $to = $request->get('to', Carbon::today()->format('Y-m-d'));
 
-        $sales = Sale::with('items.medicine', 'customer')
+        $sales = Sale::with(['items.medicine', 'customer', 'user'])
             ->whereDate('created_at', '>=', $from)
             ->whereDate('created_at', '<=', $to)
             ->latest()
             ->get();
 
         $grossRevenue = (float) $sales->sum('total');
-        $totalRefunds = (float) \App\Models\SaleReturn::whereDate('created_at', '>=', $from)
+        $totalRefunds = (float) SaleReturn::whereDate('created_at', '>=', $from)
             ->whereDate('created_at', '<=', $to)
             ->sum('refund_amount');
         $totalRevenue = max(0, $grossRevenue - $totalRefunds);
         $totalTransactions = $sales->count();
         $averagePerTransaction = $totalTransactions > 0 ? $totalRevenue / $totalTransactions : 0;
 
-        if ($request->get('export') === 'csv') {
+        $export = $request->get('export');
+        if ($export === 'excel' || $export === 'xls') {
             if (!feature_enabled('advanced_reports')) {
-                return redirect()->back()->with('error', 'CSV export is a Premium feature. Activate your Premium license under Settings → License & Edition to unlock exports.');
+                return redirect()->back()->with('error', 'Excel export is a Premium feature. Activate your Premium license under Settings → License & Edition to unlock exports.');
             }
-            return $this->exportSalesCsv($sales);
+            return $this->exportSalesExcel($sales, $from, $to, $grossRevenue, $totalRefunds, $totalRevenue, $totalTransactions);
         }
 
         return view('reports.sales', compact('sales', 'from', 'to', 'grossRevenue', 'totalRefunds', 'totalRevenue', 'totalTransactions', 'averagePerTransaction'));
     }
 
-    private function exportSalesCsv($sales)
+    private function exportSalesExcel($sales, $from, $to, $grossRevenue, $totalRefunds, $totalRevenue, $totalTransactions)
     {
-        $filename = 'sales_report_' . date('Y-m-d_H-i') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ];
+        $pharmacy = setting('pharmacy_name', 'PharmCare Pharmacy');
+        $currency = setting('currency_symbol', 'UGX');
+        $filename = 'sales_report_' . date('Y-m-d_H-i') . '.xls';
 
-        $callback = function () use ($sales) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['Invoice No', 'Customer', 'Total', 'Payment Method', 'Payment Status', 'Date']);
+        $html = view('reports.exports.sales_excel', compact(
+            'sales', 'from', 'to', 'grossRevenue', 'totalRefunds', 'totalRevenue', 'totalTransactions', 'pharmacy', 'currency'
+        ))->render();
 
-            foreach ($sales as $sale) {
-                fputcsv($file, [
-                    $sale->invoice_no,
-                    $sale->customer?->name ?? 'Walk-in',
-                    number_format((float)$sale->total, 2),
-                    ucfirst($sale->payment_method),
-                    ucfirst($sale->payment_status),
-                    $sale->created_at->format('Y-m-d H:i'),
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     public function inventory(Request $request)
     {
         $categoryId = $request->get('category_id');
-        $stockStatus = $request->get('stock_status'); // 'all', 'in_stock', 'low_stock', 'out_of_stock'
+        $stockStatus = $request->get('stock_status');
         $search = $request->get('search');
 
         $query = Medicine::with(['category', 'batches' => function ($q) {
@@ -142,11 +134,12 @@ class ReportController extends Controller
 
         $categories = \App\Models\Category::pluck('name', 'id');
 
-        if ($request->get('export') === 'csv') {
+        $export = $request->get('export');
+        if ($export === 'excel' || $export === 'xls') {
             if (!feature_enabled('advanced_inventory')) {
-                return redirect()->back()->with('error', 'CSV export is a Premium feature. Activate your Premium license under Settings → License & Edition to unlock exports.');
+                return redirect()->back()->with('error', 'Excel export is a Premium feature. Activate your Premium license under Settings → License & Edition to unlock exports.');
             }
-            return $this->exportInventoryCsv($medicines);
+            return $this->exportInventoryExcel($medicines, $totalMedicines, $totalStockQty, $totalCostValue, $totalRetailValue);
         }
 
         return view('reports.inventory', compact(
@@ -164,37 +157,22 @@ class ReportController extends Controller
         ));
     }
 
-    private function exportInventoryCsv($medicines)
+    private function exportInventoryExcel($medicines, $totalMedicines, $totalStockQty, $totalCostValue, $totalRetailValue)
     {
-        $filename = 'inventory_report_' . date('Y-m-d_H-i') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => "attachment; filename=\"$filename\"",
-        ];
+        $pharmacy = setting('pharmacy_name', 'PharmCare Pharmacy');
+        $currency = setting('currency_symbol', 'UGX');
+        $filename = 'inventory_report_' . date('Y-m-d_H-i') . '.xls';
 
-        $callback = function () use ($medicines) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['Medicine Name', 'Generic Name', 'Category', 'Manufacturer', 'Stock Qty', 'Reorder Level', 'Status', 'Avg Purchase Price', 'Avg Selling Price', 'Stock Cost Value', 'Stock Retail Value']);
+        $html = view('reports.exports.inventory_excel', compact(
+            'medicines', 'totalMedicines', 'totalStockQty', 'totalCostValue', 'totalRetailValue', 'pharmacy', 'currency'
+        ))->render();
 
-            foreach ($medicines as $med) {
-                fputcsv($file, [
-                    $med->name,
-                    $med->generic_name ?? '',
-                    $med->category?->name ?? 'Uncategorized',
-                    $med->manufacturer ?? '',
-                    $med->total_stock,
-                    $med->reorder_level,
-                    $med->status_label,
-                    number_format($med->avg_purchase_price, 2),
-                    number_format($med->avg_selling_price, 2),
-                    number_format($med->stock_cost_value, 2),
-                    number_format($med->stock_retail_value, 2),
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 
     public function expiry(Request $request)
@@ -213,6 +191,29 @@ class ReportController extends Controller
         $totalQuantity = $batches->sum('quantity');
         $totalValue = $batches->sum(fn ($b) => $b->purchase_price * $b->quantity);
 
+        $export = $request->get('export');
+        if ($export === 'excel' || $export === 'xls') {
+            return $this->exportExpiryExcel($batches, $from, $to, $totalBatches, $totalQuantity, $totalValue);
+        }
+
         return view('reports.expiry', compact('batches', 'from', 'to', 'totalBatches', 'totalQuantity', 'totalValue'));
+    }
+
+    private function exportExpiryExcel($batches, $from, $to, $totalBatches, $totalQuantity, $totalValue)
+    {
+        $pharmacy = setting('pharmacy_name', 'PharmCare Pharmacy');
+        $currency = setting('currency_symbol', 'UGX');
+        $filename = 'expiry_report_' . date('Y-m-d_H-i') . '.xls';
+
+        $html = view('reports.exports.expiry_excel', compact(
+            'batches', 'from', 'to', 'totalBatches', 'totalQuantity', 'totalValue', 'pharmacy', 'currency'
+        ))->render();
+
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel; charset=utf-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
+        ]);
     }
 }

@@ -57,7 +57,7 @@ class DiagnosticsController extends Controller
         // Support code (base64 of non-sensitive info)
         $supportData = [
             'inst' => InstallationService::getId(),
-            'ver'  => config('license.version', '2.1.0'),
+            'ver'  => config('license.version', '2.2.0'),
             'lic'  => $statusInfo['license_key'],
             'ed'   => $statusInfo['edition'],
             'st'   => $statusInfo['status'],
@@ -66,7 +66,7 @@ class DiagnosticsController extends Controller
         $supportCode = base64_encode(json_encode($supportData));
 
         $diagnostics = [
-            'app_version'        => config('license.version', '2.1.0'),
+            'app_version'        => config('license.version', '2.2.0'),
             'installation_id'    => InstallationService::getId(),
             'license_key'        => $statusInfo['license_key'],
             'edition'            => $statusInfo['edition'],
