@@ -102,7 +102,7 @@
     <script>
         function prescriptionForm() {
             return {
-                items: @json(old('items', [['medicine_id' => '', 'dosage' => '', 'duration' => '']])),
+                items: {!! json_encode(old('items', [['medicine_id' => '', 'dosage' => '', 'duration' => '']])) !!},
                 addItem() {
                     this.items.push({ medicine_id: '', dosage: '', duration: '' });
                 },
