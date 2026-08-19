@@ -24,6 +24,7 @@ use App\Http\Controllers\StockLedgerController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VendorPortalController;
+use App\Http\Controllers\UpdateController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -66,6 +67,10 @@ Route::middleware(['auth', 'verified', 'setup'])->group(function () {
     // Common routes for all active roles (Admin, Pharmacist, Cashier)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/live', [DashboardController::class, 'liveData'])->name('dashboard.live');
+
+    // Software Update Check (AJAX endpoints for dashboard)
+    Route::get('/api/check-update', [UpdateController::class, 'check'])->name('update.check');
+    Route::post('/api/dismiss-update', [UpdateController::class, 'dismiss'])->name('update.dismiss');
 
     // Customer Returns routes (must be defined BEFORE Route::resource('sales') so 'returns' is not matched as {sale} ID parameter)
     Route::middleware('role:admin,pharmacist')->group(function () {

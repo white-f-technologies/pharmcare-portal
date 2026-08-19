@@ -20,7 +20,59 @@
                 <div class="p-4 bg-emerald-100 border border-emerald-400 text-emerald-800 rounded-xl shadow-sm">{{ $value }}</div>
             @endsession
 
-            <!-- Top Stats Cards Grid -->
+            {{-- Software Update Notification Banner --}}
+            <div id="update-banner" class="hidden">
+                <div class="relative overflow-hidden bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-2xl shadow-lg border border-indigo-500/30 p-5">
+                    {{-- Decorative background pattern --}}
+                    <div class="absolute inset-0 opacity-10">
+                        <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="update-dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="white"/></pattern></defs><rect fill="url(#update-dots)" width="100%" height="100%"/></svg>
+                    </div>
+
+                    <div class="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            {{-- Animated bell icon --}}
+                            <div class="p-2.5 bg-white/15 rounded-xl backdrop-blur-sm shrink-0 mt-0.5">
+                                <svg class="w-6 h-6 text-amber-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="text-white font-extrabold text-sm flex items-center gap-2">
+                                    <span>PharmCare <span id="update-version" class="text-amber-300"></span> is available!</span>
+                                    <span class="px-2 py-0.5 bg-amber-400 text-amber-900 rounded-full text-[10px] font-black uppercase tracking-wide">New</span>
+                                </h3>
+                                <p id="update-notes" class="text-indigo-200 text-xs mt-1 max-w-lg leading-relaxed"></p>
+                                <p id="update-date" class="text-indigo-300/70 text-[10px] mt-1 font-semibold"></p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 shrink-0">
+                            <a id="update-download-btn" href="#" target="_blank"
+                               class="inline-flex items-center gap-1.5 px-5 py-2.5 bg-white text-indigo-700 rounded-xl text-xs font-extrabold shadow-md hover:bg-indigo-50 hover:shadow-lg transition-all duration-200 group">
+                                <svg class="w-4 h-4 group-hover:translate-y-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                                </svg>
+                                Download Update
+                            </a>
+                            <button onclick="remindLater()" class="px-3.5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold transition backdrop-blur-sm border border-white/10">
+                                Later
+                            </button>
+                            <button onclick="dismissUpdate()" class="p-2 bg-white/10 hover:bg-white/20 text-white/70 hover:text-white rounded-xl transition backdrop-blur-sm border border-white/10" title="Dismiss this version">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Version comparison --}}
+                    <div class="relative mt-3 pt-3 border-t border-white/10 flex items-center gap-4 text-[11px]">
+                        <span class="text-indigo-300 font-semibold">Current: <span class="text-white font-bold">v{{ config('license.version', '2.2.0') }}</span></span>
+                        <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        <span class="text-indigo-300 font-semibold">Latest: <span id="update-version-compare" class="text-amber-300 font-bold"></span></span>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="grid grid-cols-2 md:grid-cols-3 {{ ($lowStock ?? 0) > 0 ? 'lg:grid-cols-6' : 'lg:grid-cols-5' }} gap-4">
                 
                 <!-- Medicines -->
@@ -371,5 +423,71 @@
                 }
             });
         });
+
+        // ─── Software Update Check ───────────────────────────────────
+        let pendingUpdateVersion = null;
+
+        function checkForUpdates() {
+            fetch('{{ route("update.check") }}', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.available && data.download_url) {
+                    pendingUpdateVersion = data.version;
+                    document.getElementById('update-version').textContent = 'v' + data.version;
+                    document.getElementById('update-version-compare').textContent = 'v' + data.version;
+                    document.getElementById('update-notes').textContent = data.release_notes || 'A new version is available with improvements and bug fixes.';
+                    document.getElementById('update-date').textContent = data.release_date ? 'Released: ' + data.release_date : '';
+                    document.getElementById('update-download-btn').href = data.download_url;
+
+                    // Slide in the banner
+                    const banner = document.getElementById('update-banner');
+                    banner.classList.remove('hidden');
+                    banner.style.opacity = '0';
+                    banner.style.transform = 'translateY(-10px)';
+                    requestAnimationFrame(() => {
+                        banner.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                        banner.style.opacity = '1';
+                        banner.style.transform = 'translateY(0)';
+                    });
+                }
+            })
+            .catch(() => {
+                // Silently fail — offline-first behavior
+            });
+        }
+
+        function remindLater() {
+            const banner = document.getElementById('update-banner');
+            banner.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(-10px)';
+            setTimeout(() => banner.classList.add('hidden'), 300);
+        }
+
+        function dismissUpdate() {
+            if (!pendingUpdateVersion) return;
+            const banner = document.getElementById('update-banner');
+            banner.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            banner.style.opacity = '0';
+            banner.style.transform = 'translateY(-10px)';
+            setTimeout(() => banner.classList.add('hidden'), 300);
+
+            // Tell the server to suppress this version
+            fetch('{{ route("update.dismiss") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ version: pendingUpdateVersion })
+            }).catch(() => {});
+        }
+
+        // Check for updates 2 seconds after page load (non-blocking)
+        setTimeout(checkForUpdates, 2000);
     </script>
 </x-app-layout>

@@ -131,6 +131,8 @@ class PortalApiController extends Controller
             'version'               => $latest->version,
             'release_date'          => $latest->release_date->format('Y-m-d'),
             'download_url'          => $latest->download_url,
+            'file_size'             => $latest->file_size,
+            'file_hash'             => $latest->file_hash,
             'release_notes'         => $latest->release_notes,
             'min_supported_version' => $latest->min_supported_version,
             'requires_db_migration' => $latest->requires_db_migration,
