@@ -50,4 +50,5 @@ Name: "{group}\Uninstall {#MyAppName}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\pharmcare.ico"
 
 [Run]
+Filename: "{app}\start_pharmcare.bat"; Parameters: "--bootstrap-only"; Flags: runhidden; StatusMsg: "Initializing database and seeding default reference data..."
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: shellexec postinstall skipifsilent

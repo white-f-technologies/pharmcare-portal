@@ -20,7 +20,7 @@ if exist "%APP_DIR%\php\php.exe" (
 if "%PHP_BIN%"=="" (
     echo ERROR: PHP execution binary not found.
     echo Please ensure PHP 8.2+ is installed or bundled in the application directory.
-    pause
+    if not "%~1"=="--bootstrap-only" pause
     exit /b 1
 )
 
@@ -56,7 +56,7 @@ if !errorlevel! neq 0 (
     echo.
     echo ERROR: Bootstrap failed. Please contact support.
     popd
-    pause
+    if not "%~1"=="--bootstrap-only" pause
     exit /b 1
 )
 popd
@@ -66,6 +66,11 @@ copy "%APP_DIR%\.env" "%APPDATA_DIR%\.env" > nul 2>&1
 
 REM Ensure writable storage directory exists
 if not exist "%APPDATA_DIR%\storage\app\public" mkdir "%APPDATA_DIR%\storage\app\public"
+
+if "%~1"=="--bootstrap-only" (
+    echo [Bootstrap Only] Application initialized successfully.
+    exit /b 0
+)
 
 REM 4. Kill any existing process on port 8000
 for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8000 ^| findstr LISTENING') do taskkill /PID %%a /F >nul 2>&1

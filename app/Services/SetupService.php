@@ -122,64 +122,97 @@ class SetupService
 
     protected function seedSystemData(): void
     {
-        $tablesToCheck = ['settings', 'categories', 'expense_categories'];
-        foreach ($tablesToCheck as $table) {
-            if (\Illuminate\Support\Facades\Schema::hasTable($table)) {
-                if (\Illuminate\Support\Facades\DB::table($table)->count() > 0) {
-                    return;
-                }
+        $now = now();
+
+        // 1. Settings Seeder
+        $hasSettings = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('settings')) {
+            $hasSettings = \Illuminate\Support\Facades\DB::table('settings')->count() > 0;
+        }
+        if (!$hasSettings) {
+            $settings = [
+                ['key' => 'app_name', 'value' => 'PharmCare'],
+                ['key' => 'system_name', 'value' => 'PharmCare Pharmacy'],
+                ['key' => 'currency_symbol', 'value' => 'UGX'],
+                ['key' => 'currency', 'value' => 'UGX'],
+                ['key' => 'system_email', 'value' => 'info@pharmcare.ug'],
+                ['key' => 'system_phone', 'value' => '+256 700 000 000'],
+                ['key' => 'system_address', 'value' => 'Kampala, Uganda'],
+            ];
+
+            foreach ($settings as $s) {
+                Setting::set($s['key'], $s['value']);
             }
         }
 
-        $now = now();
-
-        $settings = [
-            ['key' => 'app_name', 'value' => 'PharmCare'],
-            ['key' => 'system_name', 'value' => 'PharmCare Pharmacy'],
-            ['key' => 'currency_symbol', 'value' => 'UGX'],
-            ['key' => 'currency', 'value' => 'UGX'],
-            ['key' => 'system_email', 'value' => 'info@pharmcare.ug'],
-            ['key' => 'system_phone', 'value' => '+256 700 000 000'],
-            ['key' => 'system_address', 'value' => 'Kampala, Uganda'],
-        ];
-
-        foreach ($settings as $s) {
-            Setting::set($s['key'], $s['value']);
+        // 2. Categories Seeder
+        $hasCategories = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('categories')) {
+            $hasCategories = \Illuminate\Support\Facades\DB::table('categories')->count() > 0;
+        }
+        if (!$hasCategories) {
+            // Seed complete pharmaceutical categories
+            (new \Database\Seeders\CategorySeeder())->run();
         }
 
-        // Seed complete pharmaceutical categories
-        (new \Database\Seeders\CategorySeeder())->run();
-
-        // Seed default wholesale suppliers
-        (new \Database\Seeders\SupplierSeeder())->run();
-
-        // Seed popular Ugandan medicines, packaging units (box, strip, etc.), and active batches
-        (new \Database\Seeders\MedicineSeeder())->run();
-
-        $expenseCategories = [
-            ['name' => 'Rent', 'description' => 'Premises monthly pharmacy rent'],
-            ['name' => 'Utilities', 'description' => 'Utility bills (water, electricity, internet)'],
-            ['name' => 'Salaries & Wages', 'description' => 'Staff salaries and allowances'],
-            ['name' => 'Transport & Logistics', 'description' => 'Delivery and transport costs'],
-            ['name' => 'NDA & Statutory Licensing', 'description' => 'National Drug Authority and local council trading licenses'],
-            ['name' => 'Medical Waste & Cleaning', 'description' => 'Clinical waste management and sanitation supplies'],
-            ['name' => 'Maintenance & Repairs', 'description' => 'Equipment, cold-chain refrigeration, and premises repairs'],
-            ['name' => 'Other Expenses', 'description' => 'Miscellaneous operational expenses and packaging'],
-        ];
-
-        foreach ($expenseCategories as $ec) {
-            \App\Models\ExpenseCategory::firstOrCreate(['name' => $ec['name']], $ec);
+        // 3. Suppliers Seeder
+        $hasSuppliers = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('suppliers')) {
+            $hasSuppliers = \Illuminate\Support\Facades\DB::table('suppliers')->count() > 0;
+        }
+        if (!$hasSuppliers) {
+            // Seed default wholesale suppliers
+            (new \Database\Seeders\SupplierSeeder())->run();
         }
 
-        \App\Models\Customer::firstOrCreate(
-            ['name' => 'Walk-in Customer'],
-            [
-                'email' => null,
-                'phone' => '+256 700 000 000',
-                'address' => 'Kampala, Uganda',
-                'is_active' => true,
-            ]
-        );
+        // 4. Medicines Seeder
+        $hasMedicines = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('medicines')) {
+            $hasMedicines = \Illuminate\Support\Facades\DB::table('medicines')->count() > 0;
+        }
+        if (!$hasMedicines) {
+            // Seed popular Ugandan medicines, packaging units (box, strip, etc.), and active batches
+            (new \Database\Seeders\MedicineSeeder())->run();
+        }
+
+        // 5. Expense Categories Seeder
+        $hasExpenseCategories = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('expense_categories')) {
+            $hasExpenseCategories = \Illuminate\Support\Facades\DB::table('expense_categories')->count() > 0;
+        }
+        if (!$hasExpenseCategories) {
+            $expenseCategories = [
+                ['name' => 'Rent', 'description' => 'Premises monthly pharmacy rent'],
+                ['name' => 'Utilities', 'description' => 'Utility bills (water, electricity, internet)'],
+                ['name' => 'Salaries & Wages', 'description' => 'Staff salaries and allowances'],
+                ['name' => 'Transport & Logistics', 'description' => 'Delivery and transport costs'],
+                ['name' => 'NDA & Statutory Licensing', 'description' => 'National Drug Authority and local council trading licenses'],
+                ['name' => 'Medical Waste & Cleaning', 'description' => 'Clinical waste management and sanitation supplies'],
+                ['name' => 'Maintenance & Repairs', 'description' => 'Equipment, cold-chain refrigeration, and premises repairs'],
+                ['name' => 'Other Expenses', 'description' => 'Miscellaneous operational expenses and packaging'],
+            ];
+
+            foreach ($expenseCategories as $ec) {
+                \App\Models\ExpenseCategory::firstOrCreate(['name' => $ec['name']], $ec);
+            }
+        }
+
+        // 6. Default Customer Seeder
+        $hasCustomer = false;
+        if (\Illuminate\Support\Facades\Schema::hasTable('customers')) {
+            $hasCustomer = \Illuminate\Support\Facades\DB::table('customers')->count() > 0;
+        }
+        if (!$hasCustomer) {
+            \App\Models\Customer::firstOrCreate(
+                ['name' => 'Walk-in Customer'],
+                [
+                    'email' => null,
+                    'phone' => '+256 700 000 000',
+                    'address' => 'Kampala, Uganda',
+                    'is_active' => true,
+                ]
+            );
+        }
     }
 
     protected function createBootstrapAdmin(): void
