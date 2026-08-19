@@ -87,6 +87,7 @@ The software resolves the core operational challenges faced by pharmacies:
 - **Frontend / UI:** Tailwind CSS, Alpine.js, Chart.js, Feather / Heroicons SVG iconography.
 - **Packaging & Desktop Distribution:**
   - **Inno Setup 6:** Builds self-contained Windows executable installer (`PharmCare_Setup_v2.2.0.exe`).
+  - **Installer-Time Database Bootstrap:** The installer silently runs `start_pharmcare.bat --bootstrap-only` during installation to create the SQLite database, run migrations, and seed all default reference data (medicine categories, suppliers, expense categories, medicines, and system settings) before the user first launches the application.
   - **Runtime Orchestrator:** `start_pharmcare.bat` + `launch_server.vbs` for silent background execution and port collision handling.
 - **Containerization:** Docker (`php:8.2-apache`), multi-stage entrypoint script for cloud deployments on platforms such as Render, AWS, or DigitalOcean.
 
@@ -175,7 +176,7 @@ PharmCare enforces strict Role-Based Access Control (RBAC) via the `CheckRole` m
 
 ### 4.9 Expense Tracking & Financial Reconciliation
 - **Controllers:** `ExpenseController.php`, `ExpenseCategoryController.php`
-- **Categories:** Rent, Utilities, Staff Salaries, NDA & Statutory Licensing, Cold-Chain Maintenance, Logistics, Medical Waste Sanitation.
+- **Pre-Seeded Default Expense Categories (8):** Rent, Utilities, Salaries & Wages, Transport & Logistics, NDA & Statutory Licensing, Medical Waste & Cleaning, Maintenance & Repairs, Other Expenses.
 - **Comprehensive Daily Profit Formula:**
   $$\text{Net Sales} = \text{Gross Sales} - \text{Refunds}$$
   $$\text{Net COGS} = \text{Realized COGS} - \text{Refunded COGS}$$
@@ -221,6 +222,17 @@ PharmCare enforces strict Role-Based Access Control (RBAC) via the `CheckRole` m
 ### 4.14 First-Run Setup Wizard & System Diagnostics
 - **Setup Flow:** `SetupController.php`, `SetupService.php`, `app:bootstrap` Artisan command.
   - Generates encryption key, creates local SQLite database, runs migrations, seeds pharmaceutical reference data, and establishes default administrator account (`admin@pharmcare.local`).
+  - **Bootstrap-Only Mode:** When invoked with `start_pharmcare.bat --bootstrap-only`, the system performs database setup (migrations + seeding) silently and exits without starting the server or browser. This mode is used by the Windows installer during installation.
+  - **Independent Per-Table Seeding:** `SetupService::seedSystemData()` checks and seeds each table independently (settings, categories, suppliers, medicines, expense categories, customers), ensuring no partial data states if one table already contains data.
+- **Pre-Seeded Default Reference Data:**
+  | Data Type | Count | Examples |
+  | :--- | :---: | :--- |
+  | Medicine Categories | 20+ | Pain Relief & Analgesics, Antibiotics & Antimicrobials, Antimalarials & Antiparasitics, Vitamins & Supplements, Dermatology, Pediatric, etc. |
+  | Suppliers | 9 | National Medical Stores (NMS), Joint Medical Store (JMS), Cipla QCIL, Abacus Pharma, Surgipharm, KPI, Rene Industries, AstraPharma, Generic Pharma Importers |
+  | Medicines | 30+ | Coartem, Panadol Extra, Augmentin, Ventolin — with packaging units (Box, Strip, Tablet) and active batches |
+  | Expense Categories | 8 | Rent, Utilities, Salaries & Wages, Transport & Logistics, NDA & Statutory Licensing, Medical Waste & Cleaning, Maintenance & Repairs, Other Expenses |
+  | System Settings | 7 | App name, currency (UGX), contact email, phone, address |
+  | Default Customers | 1 | Walk-in Customer |
 - **Diagnostics Screen (`/admin/diagnostics`):**
   - Evaluates SQLite database integrity (`PRAGMA integrity_check`).
   - Reports disk space, database size, permissions, PHP version, installation UUID, and generates an encrypted support token for technical troubleshooting.
@@ -394,12 +406,21 @@ A valid PharmCare license JSON file contains:
 2. **Installation:**
    - Execute `PharmCare_Setup_v2.2.0.exe`.
    - The installer unpacks files to `C:\PharmCare` and places a shortcut on the Desktop.
+   - **Automatic Database Initialization:** During installation, the installer silently executes `start_pharmcare.bat --bootstrap-only` which creates the SQLite database at `%APPDATA%\PharmCare\database\database.sqlite`, runs all migrations, and seeds the following default reference data:
+     - **20+ pharmaceutical medicine categories** (Antibiotics, Antimalarials, Pain Relief, Cardiovascular, Vitamins, Dermatology, etc.)
+     - **9 Ugandan wholesale suppliers** (NMS, JMS, Cipla QCIL, Surgipharm, Abacus Pharma, etc.)
+     - **30+ popular medicines** with packaging units (Box, Strip, Tablet) and active batches
+     - **8 operational expense categories** (Rent, Utilities, Salaries, Transport, NDA Licensing, etc.)
+     - **Default system settings** (app name, currency UGX, contact info)
+     - **Default Walk-in Customer** record
+   - The installer shows a status message: `"Initializing database and seeding default reference data..."` during this phase.
 3. **Application Startup:**
    - Launch via the Desktop shortcut or `start_pharmcare.bat`.
-   - The orchestrator checks `%APPDATA%\PharmCare`, verifies port 8000 availability, runs SQLite migrations, starts the PHP background server silently via VBScript, and opens the default browser to `http://127.0.0.1:8000`.
+   - The orchestrator checks `%APPDATA%\PharmCare`, verifies port 8000 availability, runs any pending SQLite migrations (seamless upgrade), starts the PHP background server silently via VBScript, and opens the default browser to `http://127.0.0.1:8000`.
 4. **First-Time Wizard:**
    - Default login: `admin@pharmcare.local` / `admin123`.
    - Enter your pharmacy business profile, address, phone number, and establish your permanent administrator credentials.
+   - All pre-seeded reference data (categories, suppliers, medicines, expense categories) is immediately available for use.
 
 ### 8.2 Development Setup (XAMPP / Composer)
 ```bash
