@@ -2,7 +2,7 @@
 ; Build: Clean Install with SQLite (no dev data shipped)
 #define MyAppName "PharmCare Offline Pharmacy"
 #define MyAppVersion "2.2.0"
-#define MyAppPublisher "PharmCare Software Solutions"
+#define MyAppPublisher "whiteftechnologies"
 #define MyAppURL "https://pharmcare.test"
 #define MyAppExeName "start_pharmcare.bat"
 
@@ -20,6 +20,8 @@ OutputBaseFilename=PharmCare_Setup_v2.2.0
 Compression=lzma2/max
 SolidCompression=yes
 WizardStyle=modern
+ArchitecturesAllowed=x86 x64compatible arm64
+ArchitecturesInstallIn64BitMode=x64compatible arm64
 SetupIconFile=dist\pharmcare.ico
 UninstallDisplayIcon={app}\pharmcare.ico
 

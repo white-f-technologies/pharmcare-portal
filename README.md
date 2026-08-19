@@ -1,59 +1,96 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# PharmCare - Offline Pharmacy Management System & Vendor Portal
+**Version:** 2.2.0 | **Platform:** Windows Standalone Desktop & Cloud Web | **Framework:** Laravel 11.x (PHP 8.2+)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## 📖 Overview
+**PharmCare** is a production-grade, offline-first Pharmacy Management and Point-of-Sale (POS) system engineered for retail pharmacies, drug shops, and pharmaceutical distributors. It features dual-mode architecture:
+1. **Offline Desktop Workstation:** Runs locally on Windows with an embedded SQLite database, zero external dependencies, background service launcher, and automated data directory management.
+2. **Cloud Vendor Control Center:** Provides centralized license issuance, fleet installation telemetry, client registries, and remote software update delivery via REST API.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 📚 Complete System Documentation
+For in-depth architecture diagrams, database schemas (23 tables), API references, licensing mechanisms, role-based access control, and troubleshooting guides, please read:
+👉 **[SYSTEM_DOCUMENTATION.md](file:///c:/xampp/htdocs/pham-care/SYSTEM_DOCUMENTATION.md)**
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## ✨ Key Features & Capabilities
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **🚀 Point of Sale (POS) & Billing:** High-speed barcode/search checkout, multi-payment options (Cash, Mobile Money, Card), thermal 80mm & A4 receipt printing, pessimistic batch locking (`lockForUpdate`), and atomic transactions.
+- **📦 Multi-Unit Packaging System:** Flexible packaging conversion (e.g., Box → Strip → Tablet / Ampoule / Vial) with automated base-unit deduction and pricing tiers.
+- **⏳ Batch & FEFO Expiry Tracking:** Strict First-Expiring-First-Out (FEFO) batch allocation, 30/60/90-day expiry risk alerts, and supplier traceability.
+- **🔄 Sales Returns & Refunds:** Item-level return limit enforcement, batch stock restocking, and automated revenue/profit reconciliation.
+- **📉 Loss & Stock Adjustments:** Tracks damages, expired write-offs, and stock variances with full double-entry quantity auditing.
+- **📋 Stock Ledger Audit Trail (Premium):** Real-time ledger recording every inventory movement with user attribution and polymorphic references.
+- **💊 Prescriptions & Doctor Records:** Digital prescription capture with direct transfer into POS billing.
+- **🚚 Procurement & Supplier Management:** Purchase orders, batch ingestion, cost tracking, and quick-supplier creation.
+- **💰 Financials & Expenses:** Operational expense tracking with daily realized Cost of Goods Sold (COGS), refunds, and net profit calculations.
+- **📊 Reports & Business Intelligence:** Sales reports, inventory valuation (cost vs. retail), expiry alerts, and Excel/XLS export capabilities.
+- **🔐 RSA-2048 Cryptographic Licensing:** Offline license validation using OpenSSL asymmetric cryptography, machine fingerprinting, and feature gating (`DEFAULT` vs. `PREMIUM`).
+- **🛡️ Database Backup & Disaster Recovery:** 1-click SQL/ZIP backups with SHA-256 checksums, automatic pre-restore safety snapshots, and external USB drive export.
+- **🩺 Admin Diagnostics:** Database health (`PRAGMA integrity_check`), permissions analysis, disk metrics, and encrypted support tokens.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 👥 User Roles & Access Control
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Role | Permissions Overview |
+| :--- | :--- |
+| **Admin (`admin`)** | Full system access: User management, system settings, database backups, diagnostics, license management, and vendor portal. |
+| **Pharmacist (`pharmacist`)** | POS sales, medicine catalog, batch management, stock adjustments, purchases, prescriptions, expenses, and operational reports. |
+| **Cashier (`cashier`)** | POS sales checkout, invoice viewing, customer registration, and read-only medication search. |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 🚀 Quick Start Guide
 
-## Contributing
+### 1. Windows Standalone Desktop
+- Run `PharmCare_Setup_v2.2.0.exe` (built via Inno Setup).
+- Launch the application via the Desktop shortcut or `start_pharmcare.bat`.
+- The system automatically bootstraps `%APPDATA%\PharmCare`, applies migrations, starts the background server, and opens your browser at `http://127.0.0.1:8000`.
+- Initial Administrator Credentials:
+  - **Email:** `admin@pharmcare.local`
+  - **Password:** `admin123`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Development Setup
+```bash
+# Clone and enter directory
+cd c:\xampp\htdocs\pham-care
 
-## Code of Conduct
+# Install PHP dependencies
+composer install
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Environment setup
+copy .env.example .env
+php artisan key:generate
 
-## Security Vulnerabilities
+# Migrate and seed Ugandan pharmaceutical data
+php artisan migrate --seed
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Build frontend assets
+npm install
+npm run build
 
-## License
+# Start local dev server
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### 3. Docker Deployment
+```bash
+docker build -t pharmcare:latest .
+docker run -d -p 10000:10000 -e PORT=10000 --name pharmcare pharmcare:latest
+```
+
+---
+
+## 🛠️ Testing & Quality Assurance
+Run the automated test suite covering authentication, upgrades, expenses, sales returns, reports, and reference data:
+```bash
+php artisan test
+```
+
+---
+*PharmCare Software Solutions © 2026. All rights reserved.*
+
