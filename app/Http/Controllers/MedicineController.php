@@ -99,10 +99,17 @@ class MedicineController extends Controller
         }
 
         if ($request->filled('selling_price') || $request->filled('purchase_price')) {
-            $defaultSupplierId = \App\Models\Supplier::value('id') ?? 1;
+            $supplierId = $request->input('supplier_id');
+            if ($supplierId && !\App\Models\Supplier::where('id', $supplierId)->exists()) {
+                $supplierId = null;
+            }
+            if (!$supplierId) {
+                $supplierId = \App\Models\Supplier::value('id');
+            }
+
             $medicine->batches()->create([
                 'batch_number' => 'BATCH-' . strtoupper(substr(uniqid(), -6)),
-                'supplier_id' => $request->input('supplier_id', $defaultSupplierId),
+                'supplier_id' => $supplierId,
                 'purchase_price' => $request->input('purchase_price', 0),
                 'selling_price' => $request->input('selling_price', 0),
                 'quantity' => 0,
